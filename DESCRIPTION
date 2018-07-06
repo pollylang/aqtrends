@@ -1,0 +1,23 @@
+Package: aqtrends
+Title: Tools for trend analysis of air quality network data
+Version: 0.1
+Authors@R: person("Polly", "Lang", email = "pl746@york.ac.uk", role = c("aut", "cre"))
+Description: A set of functions for trend analysis of time series with different lengths. The functions are designed to identify and mitigate the biasing effects on trends in air pollutant concentrations as a result of monitoring site flux in air quality monitoring networks.
+Depends: R (>= 3.4.3)
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: testthat
+Imports: 
+	dplyr, 
+	ggplot2,
+	foreach,
+	doParallel,
+	lubridate,
+	stringr,
+	openair,
+	purrr,
+	cowplot,
+	tidyr,
+	plyr
