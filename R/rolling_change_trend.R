@@ -1,21 +1,9 @@
-#' @title Trends of relative change in concentration as a function of time (V2: 03-07-18)
+#' @title Rolling change trends (extract true trend)
 #'
 #' @description Removal of distorting effect of site movement to reveal underlying trend by using changes in
 #' concentration as a function of year as a proxy for the average trend. This method retains information about the
 #' shape of the trend, while ignoring differences in magnitude, thus removing the leveraging effect of opening and
-#' closing sites with extreme magnitudes. Changes to v2:
-#' \enumerate{
-#'     \item Improved structure: increased reliance on the helper functions (particularly for
-#'     data averaging, filtering and calculation of pollutant ratios)
-#'     \item Improved generalisation: function can be implemented with any pollutants
-#'     \item Improved generalisation: function can be implemented with or without parallelisation
-#'     \item Some changes to arguments and to argument checking
-#'     \item Extraneous options stripped out (e.g. different types of rolling regression model)
-#'     \item Removed ability to apply rolling regression over monthly averages (as opposed to annual averages). Inability
-#'     to account for seasonal variation in the model (moving windows were usually too short to allow for deseasonalisation) -
-#'     affected linear model and coefficients.
-#' }
-#'
+#' closing sites with extreme magnitudes.
 #'
 #' @param obs A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
 #' value. If 'pollutant' is a pollutant ratio, the data frames of the corresponding pollutants

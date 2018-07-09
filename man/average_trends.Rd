@@ -2,7 +2,7 @@
 % Please edit documentation in R/average_trends.R
 \name{average_trends}
 \alias{average_trends}
-\title{Function to compare average trend with long term sites' trend (V2: 04-07-18)}
+\title{Compare average trend over all sites with average trend over long term sites}
 \usage{
 average_trends(obs, pollutant, stat = "median", start.date = "2000-01-01",
   end.date = "2017-12-31", data.capture = 90, smooth.method = "loess")
@@ -45,11 +45,6 @@ A list of plots:
 \description{
 Produces plots of annual average trends in the pollutant of interest aggregated over all sites, and
 over the long term sites only (i.e. sites open constantly over the period of interest).
-Changes to v2:
-\enumerate{
-    \item Better organisation: generalised averaging and plotting functions (in helper functions) - both for averaging for each
-    site and over all sites.
-}
 }
 \examples{
 \dontrun{

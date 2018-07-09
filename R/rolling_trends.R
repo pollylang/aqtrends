@@ -1,20 +1,7 @@
-#' @title Rolling trend plots (v2: 05-07-2018)
+#' @title Rolling trend plots
 #'
 #' @description Demonstrates a distortion of the overall trend as a consequence of the leveraging effect of opening and
 #' closing of monitoring sites with different magnitudes over the period examined using rolling trend plots.
-#' Changes to v2:
-#' \enumerate{
-#'     \item Improved organisation: averaging and pollutant ratio functions wrapped in helper functions (generalised across
-#'     all functions in the package to reduce redundancy).
-#'     \item Function can be implemented with/without parallelisation.
-#'     \item Decreased redundancy: same implementation for multiple and single moving window widths.
-#'     \item Plot layouts and aesthetics modified to match those of the other functions in the package.
-#'     \item Extraneous options stripped out (i.e. ability to change type of rolling trend - only option is for a linear
-#'     rolling trend i.e. rolling regression.)
-#'     \item Plots now fitted using GAM for rolling trends and \code{smooth.method} for average trend.
-#'     \item Slight change to method of defining moving window (implemented using date objects rather than numeric years for
-#'     increased flexibility) in line with the implementation in the \code{change_trends_v2} function.
-#' }
 #'
 #' @param obs A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
 #' value. If 'pollutant' is a pollutant ratio, the data frames of the corresponding pollutants
@@ -61,7 +48,7 @@
 #' @export
 
 rolling_trends <- function(obs,
-                           pollutant = "nox",
+                           pollutant,
                            window.width = c(2, 3, 5, 7, 10, 12, 15),
                            stat = "median",
                            start.date = "2000-01-01",

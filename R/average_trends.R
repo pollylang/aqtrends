@@ -1,12 +1,7 @@
-#' @title Function to compare average trend with long term sites' trend (V2: 04-07-18)
+#' @title Compare average trend over all sites with average trend over long term sites
 #'
 #' @description Produces plots of annual average trends in the pollutant of interest aggregated over all sites, and
 #' over the long term sites only (i.e. sites open constantly over the period of interest).
-#' Changes to v2:
-#' \enumerate{
-#'     \item Better organisation: generalised averaging and plotting functions (in helper functions) - both for averaging for each
-#'     site and over all sites.
-#' }
 #'
 #' @param obs  A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
 #' value. If 'pollutant' is a pollutant ratio, the data frames of the corresponding pollutants

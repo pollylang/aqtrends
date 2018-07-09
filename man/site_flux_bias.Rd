@@ -2,7 +2,7 @@
 % Please edit documentation in R/site_flux_bias.R
 \name{site_flux_bias}
 \alias{site_flux_bias}
-\title{The difference between opening and closing sites as a function of year (v2: 05-07-2018)}
+\title{The difference in concentration between opening and closing sites as a function of year}
 \usage{
 site_flux_bias(obs, pollutant, stat = "median", smooth.method = "loess")
 }
@@ -35,17 +35,7 @@ A list of plots:
 \description{
 Detects a difference in average concentration of the pollutant of interest between sites opening
 and closing in a given year (i.e. a bias towards more/less polluted locations) and any change in this bias over
-time. Changes to v2:
-\enumerate{
-    \item Improved organisation: averaging and pollutant ratio functions wrapped in helper functions (generalised across
-    all functions in the package to reduce redundancy).
-    \item Plot layouts and aesthetics modified to match those of the other functions in the package.
-    \item Generalised plotting function and applied over different parameters to produce the three plots (more efficient)
-    \item Removed extraneous code and redundancies
-    \item Included the option to specify the smoothing method when plotting - useful for data frames with few (moving) sites
-    to be able to use GAM rather than loess.
-    \item Slightly altered the output for greater consistency and flexibility of use.
- }
+time.
 }
 \examples{
 \dontrun{

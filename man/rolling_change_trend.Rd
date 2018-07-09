@@ -2,7 +2,7 @@
 % Please edit documentation in R/rolling_change_trend.R
 \name{rolling_change_trend}
 \alias{rolling_change_trend}
-\title{Trends of relative change in concentration as a function of time (V2: 03-07-18)}
+\title{Rolling change trends (extract true trend)}
 \usage{
 rolling_change_trend(obs, pollutant, window.width, stat = "median",
   start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90,
@@ -41,18 +41,7 @@ A plot of the proxy trend (change in concentration over an N year period as a fu
 Removal of distorting effect of site movement to reveal underlying trend by using changes in
 concentration as a function of year as a proxy for the average trend. This method retains information about the
 shape of the trend, while ignoring differences in magnitude, thus removing the leveraging effect of opening and
-closing sites with extreme magnitudes. Changes to v2:
-\enumerate{
-    \item Improved structure: increased reliance on the helper functions (particularly for
-    data averaging, filtering and calculation of pollutant ratios)
-    \item Improved generalisation: function can be implemented with any pollutants
-    \item Improved generalisation: function can be implemented with or without parallelisation
-    \item Some changes to arguments and to argument checking
-    \item Extraneous options stripped out (e.g. different types of rolling regression model)
-    \item Removed ability to apply rolling regression over monthly averages (as opposed to annual averages). Inability
-    to account for seasonal variation in the model (moving windows were usually too short to allow for deseasonalisation) -
-    affected linear model and coefficients.
-}
+closing sites with extreme magnitudes.
 }
 \examples{
 \dontrun{
