@@ -55,7 +55,7 @@ nox.av.trends <- average_trends(data, pollutant = "nox", stat = "median",
 cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, ncol = 2)
 ```
 
-<img src="README-av_trends-1.png" style="display: block; margin: auto;" />
+<img src="fig/README-av_trends-1.png" style="display: block; margin: auto;" />
 
 The presence of a biasing effect can be confirmed by plotting the differences in concentration between opening sites and closing sites as a function of year using the `site_flux_bias` function (see below). In this case, it is clear that opening sites have a consistently higher average NO<sub>x</sub> concentration than closing sites. Taking into account the relative frequency of opening and closing sites (as shown in the plot of the weighted cumulative sum of differences in concentration as a function of time on the far right), a bias towards more polluted locations is evident.
 
@@ -63,7 +63,7 @@ The presence of a biasing effect can be confirmed by plotting the differences in
 site_flux_bias(data, pollutant = "nox", stat = "median", smooth.method = "loess")$all
 ```
 
-<img src="README-difference-1.png" style="display: block; margin: auto;" />
+<img src="fig/README-difference-1.png" style="display: block; margin: auto;" />
 
  
 
@@ -74,32 +74,32 @@ rolling_trends(data, pollutant = "nox", window.width = c(2, 5, 7, 10, 12, 15))
 ## $rolling2
 ```
 
-<img src="README-rolling-1.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-1.png" style="display: block; margin: auto;" />
 
     ## 
     ## $rolling5
 
-<img src="README-rolling-2.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-2.png" style="display: block; margin: auto;" />
 
     ## 
     ## $rolling7
 
-<img src="README-rolling-3.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-3.png" style="display: block; margin: auto;" />
 
     ## 
     ## $rolling10
 
-<img src="README-rolling-4.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-4.png" style="display: block; margin: auto;" />
 
     ## 
     ## $rolling12
 
-<img src="README-rolling-5.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-5.png" style="display: block; margin: auto;" />
 
     ## 
     ## $rolling15
 
-<img src="README-rolling-6.png" style="display: block; margin: auto;" />
+<img src="fig/README-rolling-6.png" style="display: block; margin: auto;" />
 
  
 
@@ -109,4 +109,4 @@ Having identified the effect of bias on the average trend, the `rolling_change_t
 rolling_change_trend(data, "nox", window.width = 2, parallel = TRUE)
 ```
 
-<img src="README-change_trends-1.png" style="display: block; margin: auto;" />
+<img src="fig/README-change_trends-1.png" style="display: block; margin: auto;" />
