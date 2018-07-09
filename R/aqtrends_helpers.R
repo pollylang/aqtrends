@@ -1,4 +1,4 @@
-#' Function to filter observations data to only include sites with sufficient data capture over the period of interest.
+#' Filter observations data to only include sites with sufficient data capture
 #'
 #' @param data A data frame of observation data with the columns: site_code, date, value (i.e. the same as
 #' the column names in the observations table of the air_quality_data database).
@@ -147,7 +147,7 @@ data_capture <- function(data, threshold, start.date = NULL, end.date = NULL) {
   return(data)
 }
 
-#' Function to average raw hourly data by year or month-year
+#' Average raw hourly data by year or month-year
 #'
 #' @param df Data frame containing the variables \code{date}, \code{site_code}, \code{value}.
 #'
@@ -206,7 +206,7 @@ average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALS
 }
 
 
-#' Function to calculate average pollutant ratios using linear model (same function as \code{average_data} but for pollutant ratios)
+#' Calculate average pollutant ratios using linear model
 #'
 #' @param df.list List of data frames of observation data for each pollutant in the ratio. First element of list should be
 #' data frame for the pollutant which is the numerator in the ratio (second element should be for the denominator pollutant).
@@ -272,7 +272,7 @@ calculate_pollutant_ratio <- function(df.list, avg.time, statistic, sites = FALS
 }
 
 
-#' Function to calculate average pollutant ratios using only data from sites with sufficient data capture
+#' Calculate average pollutant ratios (with data capture constraint)
 #'
 #' @param df.list List of data frames of observation data for each pollutant in the ratio. First element of list should be
 #' data frame for the pollutant which is the numerator in the ratio (second element should be for the denominator pollutant).
@@ -326,7 +326,7 @@ pollutant_ratio_data_capture <- function(df.list, avg.time, start, end, data.cap
 }
 
 
-#' Function to check that a character string specifying a data is in the format YYYY-mm-dd (for later parsing by \code{lubridate::ymd()})
+#' Check that a character string is in correct date format
 #'
 #' @param date.string The character string of the date to be tested for whether the format is correct (\%Y-\%m-\%d)
 #'
@@ -342,8 +342,7 @@ check_date_format <- function(date.string){
 }
 
 
-#' Function to plot average trends in pollutant concentration (for individual sites or averaged over all sites). Used in the
-#' \code{average_trends} function
+#' Plot average trends in pollutant concentration
 #'
 #' @param df Data frame of average pollutant concentrations containing the variables \code{date}, \code{site_code}, \code{av_value}.
 #'
@@ -390,7 +389,7 @@ trends_plots_helper <- function(df, sites, poll, stat, smooth.method, start.date
 
 
 
-#' Function to check the arguments of the function and return a user-friendly error if they violate the requirements
+#' Check function arguments
 #'
 #' @param obs,pollutant,window.width,stat,start.date,end.date,data.capture,smooth.method,parallel Pass the arguments to the
 #' main function directly to the \code{check_arguments} function for checking.
