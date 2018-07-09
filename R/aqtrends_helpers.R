@@ -366,7 +366,7 @@ trends_plots_helper <- function(df, sites, poll, stat, smooth.method, start.date
   plot <- ggplot(df, aes(x = date, y = av_value)) +
     geom_point() +
     xlab("Year") +
-    ylab(bquote(paste(.(stat), " ", .(poll), " concentration (", mu, "g ", m^-3, ")"))) +
+    ylab(openair::quickText(paste0(stringr::str_to_title(stat), " ", poll, " concentration (ugm-3)"))) +
     scale_x_continuous(breaks = round(seq(as.numeric(lubridate::year(start.date)), as.numeric(lubridate::year(end.date)), by = 2),1)) +
     theme_bw() +
     theme(panel.grid.major = element_blank(),

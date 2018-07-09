@@ -70,21 +70,22 @@ average_trends <- function(obs,
   if(!(stringr::str_detect(pollutant, "/"))){
 
     allsites.sites <- average_data(obs, avg.time = "year", statistic = stat, sites = TRUE) # annual average for each site
-    allsites.av <- average_data(obs, avg.time = "year", statistic = stat) # annual average over all sites
+    allsites.av <- average_data(obs, avg.time = "year", statistic = stat, sites = FALSE) # annual average over all sites
 
     longterm <- data_capture(obs, threshold = data.capture, start.date = start.date, end.date = end.date)
 
     longterm.sites <- longterm %>% average_data(avg.time = "year", statistic = stat, sites = TRUE) # annual average for each long term sites
-    longterm.av <- longterm %>% average_data(longterm.sites, avg.time = "year", statistic = stat) # annual average over all long term sites
+    longterm.av <- longterm %>% average_data(avg.time = "year", statistic = stat, sites = FALSE) # annual average over all long term sites
 
   } else{
 
     allsites.sites <- calculate_pollutant_ratio(obs, avg.time = "year", statistic = stat, sites = TRUE)
-    allsites.av <- calculate_pollutant_ratio(obs, avg.time = "year", statistic = stat)
+    allsites.av <- calculate_pollutant_ratio(obs, avg.time = "year", statistic = stat, sites = FALSE)
 
     longterm.sites <- pollutant_ratio_data_capture(obs, avg.time = "year", start.date, end.date, data.capture,
                                                    statistic = stat, sites = TRUE)
-    longterm.av <- pollutant_ratio_data_capture(obs, avg.time = "year", start.date, end.date, data.capture, statistic = stat)
+    longterm.av <- pollutant_ratio_data_capture(obs, avg.time = "year", start.date, end.date, data.capture, statistic = stat,
+                                                sites = FALSE)
 
   }
 
