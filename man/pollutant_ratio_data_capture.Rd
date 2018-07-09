@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{pollutant_ratio_data_capture}
 \alias{pollutant_ratio_data_capture}
-\title{Function to calculate average pollutant ratios using only data from sites with sufficient data capture}
+\title{Calculate average pollutant ratios (with data capture constraint)}
 \usage{
 pollutant_ratio_data_capture(df.list, avg.time, start, end, data.capture,
   statistic = "mean", sites = FALSE)
@@ -28,5 +28,5 @@ which to measure data capture.}
 Data frame of annual/monthly average concentration data for the (filtered) pollutant ratio
 }
 \description{
-Function to calculate average pollutant ratios using only data from sites with sufficient data capture
+Calculate average pollutant ratios (with data capture constraint)
 }

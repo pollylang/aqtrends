@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{data_capture}
 \alias{data_capture}
-\title{Function to filter observations data to only include sites with sufficient data capture over the period of interest.}
+\title{Filter observations data to only include sites with sufficient data capture}
 \usage{
 data_capture(data, threshold, start.date = NULL, end.date = NULL)
 }
@@ -19,5 +19,5 @@ which to measure data capture.}
 Data frame of observation data filtered by data capture over the defined period
 }
 \description{
-Function to filter observations data to only include sites with sufficient data capture over the period of interest.
+Filter observations data to only include sites with sufficient data capture
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{average_data}
 \alias{average_data}
-\title{Function to average raw hourly data by year or month-year}
+\title{Average raw hourly data by year or month-year}
 \usage{
 average_data(df, avg.time = "year", statistic = "mean", sites = FALSE)
 }
@@ -20,5 +20,5 @@ average_data(df, avg.time = "year", statistic = "mean", sites = FALSE)
 Data frame of annual/monthly average concentration data
 }
 \description{
-Function to average raw hourly data by year or month-year
+Average raw hourly data by year or month-year
 }

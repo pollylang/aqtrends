@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{calculate_pollutant_ratio}
 \alias{calculate_pollutant_ratio}
-\title{Function to calculate average pollutant ratios using linear model (same function as \code{average_data} but for pollutant ratios)}
+\title{Calculate average pollutant ratios using linear model}
 \usage{
 calculate_pollutant_ratio(df.list, avg.time, statistic, sites = FALSE)
 }
@@ -22,5 +22,5 @@ Both data frames should contain the variables \code{date}, \code{site_code}, \co
 Data frame of annual/monthly average concentration data for the pollutant ratio
 }
 \description{
-Function to calculate average pollutant ratios using linear model (same function as \code{average_data} but for pollutant ratios)
+Calculate average pollutant ratios using linear model
 }

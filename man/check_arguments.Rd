@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{check_arguments}
 \alias{check_arguments}
-\title{Function to check the arguments of the function and return a user-friendly error if they violate the requirements}
+\title{Check function arguments}
 \usage{
 check_arguments(obs = NULL, pollutant = NULL, window.width = NULL,
   stat = NULL, start.date = NULL, end.date = NULL, data.capture = NULL,
@@ -17,5 +17,5 @@ If one of the arguments violates the argument requirements, will return an infor
 does nothing.
 }
 \description{
-Function to check the arguments of the function and return a user-friendly error if they violate the requirements
+Check function arguments
 }

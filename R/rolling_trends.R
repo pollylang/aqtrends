@@ -220,7 +220,7 @@ rolling_trends <- function(obs,
     }
 
 
-  rolling.names <- paste0("rolling", window.width)
+  rolling.names <- paste0("moving_window_width=", window.width)
   names(rolling) <- rolling.names
 
   # Plots

@@ -5,9 +5,9 @@ Introduction
 
 **aqtrends** is an R package for conducting trend analysis of time series with different lengths.
 
-It is a often desirable, in air quality as well as in other fields, to aggregate multiple time series into a single representative trend. In air quality monitoring networks, simply averaging the individual time series often misrepresents the true trend due to biases in the monitoring network. Movement of roadside monitoring sites to more polluted locations is common, as a consequence of legislative requirements to monitor air quality at the most polluted locations. Consequently, opening sites (i.e. starting time series) in later years can leverage the average trend upwards, causing an increase in the average trend that is not necessarily a reflection of trends of individual time series.
+It is a often useful, in air quality as well as in other fields, to aggregate multiple time series into a single representative trend. In air quality monitoring networks, simply averaging the individual time series often misrepresents the true trend due to biases in the monitoring network. Movement of roadside monitoring sites to more polluted locations is common, as a consequence of legislative requirements to monitor air quality at the most polluted locations. Consequently, opening sites (i.e. starting time series) in later years can leverage the average trend upwards, causing an increase in the average trend that is not necessarily a reflection of trends of individual time series.
 
-The `aqtrends` functions are designed to identify and mitigate the biasing effects on trends in air pollutant concentrations as a result of monitoring site flux in air quality monitoring networks.
+The `aqtrends` functions are designed to identify and mitigate the biasing effects of monitoring site flux on trends in air pollutant concentrations in air quality monitoring networks.
 
 More details on the methods applied in this package, as well as a detailed case study using London air quality monitoring data, are given in a paper which is currently in preparation.
 
@@ -31,19 +31,19 @@ install_github("pollylang/aqtrends")
 How to use aqtrends
 -------------------
 
-1.  Identify the impact of differences in time series duration and potential biases on the long term trend.
+1.  Identify the effect of potential biases on the long term trend.
     -   Use `average_trends` to compare the average trends of all time series with the average trend for the long term time series only (i.e. time series with equal duration). Also returns average trends of individual sites which can be examined and compared to the average trend to identify biases.
     -   Use `site_flux_bias` to visualise the bias due to differences in pollutant concentration between time series that are starting and time series that are ending as a function of time.
-    -   Use `rolling_trends` to compare rolling trends in pollutant concentration with the average trend to identify biases in the monitoring network.
+    -   Use `rolling_trends` to compare rolling trends in pollutant concentration with the average trend.
 2.  Remove the effect of variable time series length and bias on the long term trend
-    -   Use `rolling_change_trend` to compute the rolling change trend, which approximates the true trend in pollutant concentration.
+    -   Use `rolling_change_trend` to compute the rolling change trend, which represents the true trend in pollutant concentration.
 
    
 
 Example
 -------
 
-The `aqtrends` functions are demonstrated by a trend analysis of NO<sub>x</sub> concentrations at 121 roadside monitoring sites in London between 2000-2017. During this period, 9 monitoring sites were constantly open over the duration (long term sites). The data were sourced from [the Automatic Urban and Rural Network](https://uk-air.defra.gov.uk/networks/network-info?view=aurn), [the London Air Quality Network](https://www.londonair.org.uk/LondonAir/Default.aspx) and [Air Quality England](http://www.airqualityengland.co.uk/).
+The `aqtrends` functions are demonstrated below by a trend analysis of NO<sub>x</sub> concentrations at 121 roadside monitoring sites in London between 2000-2017. During this period, 9 monitoring sites were constantly open over the duration (long term sites). The data were sourced from [the Automatic Urban and Rural Network](https://uk-air.defra.gov.uk/networks/network-info?view=aurn), [the London Air Quality Network](https://www.londonair.org.uk/LondonAir/Default.aspx) and [Air Quality England](http://www.airqualityengland.co.uk/).
 
 The differences between the average trend (left) and the long term trend (right) in NO<sub>x</sub>, plotted using the `average_trends` function, suggest a biasing effect may be influencing the average trend.
 
@@ -67,37 +67,37 @@ site_flux_bias(data, pollutant = "nox", stat = "median", smooth.method = "loess"
 
  
 
-Further evidence of the effect of the bias on the average trend can be visualised using the `rolling_trends` function, as demonstrated below. The plots on the left shows rolling trends over a short moving window, each offset from its neighbours by a single year. The plot on the right shows the average trend over all data included in the rolling trend plots. The larger the width of the moving window, the more constraining the data capture filters on the data. Comparison of the rolling trends and average trends over different moving window widths (i.e. data capture filters - in this case moving window widths = 2, 5, 7, 10, 12, 15 years) demonstrates that some of the features of the average trend, most notably in this case the increase in concentration between 2008-2013, is an artefact of bias in the monitoring network rather than a feature of the true trend.
+Further evidence of the effect of the bias on the average trend can be visualised using the `rolling_trends` function, as demonstrated below. The plots on the left shows rolling trends over a short moving window, each offset from its neighbours by a single year. The plot on the right shows the average trend over all data included in the rolling trend plots. The larger the width of the moving window, the more constraining the data capture filters on the data. Comparison of the rolling trends and average trends over different moving window widths (i.e. data capture filters - in this case moving window widths = 2, 5, 7, 10, 12, 15 years) demonstrates that some of the features of the average trend, most notably in this case the increase in concentration between 2008-2013, are artefacts of bias in the monitoring network rather than features of the true trend.
 
 ``` r
 rolling_trends(data, pollutant = "nox", window.width = c(2, 5, 7, 10, 12, 15))
-## $rolling2
+## $`moving_window_width=2`
 ```
 
 <img src="fig/README-rolling-1.png" style="display: block; margin: auto;" />
 
     ## 
-    ## $rolling5
+    ## $`moving_window_width=5`
 
 <img src="fig/README-rolling-2.png" style="display: block; margin: auto;" />
 
     ## 
-    ## $rolling7
+    ## $`moving_window_width=7`
 
 <img src="fig/README-rolling-3.png" style="display: block; margin: auto;" />
 
     ## 
-    ## $rolling10
+    ## $`moving_window_width=10`
 
 <img src="fig/README-rolling-4.png" style="display: block; margin: auto;" />
 
     ## 
-    ## $rolling12
+    ## $`moving_window_width=12`
 
 <img src="fig/README-rolling-5.png" style="display: block; margin: auto;" />
 
     ## 
-    ## $rolling15
+    ## $`moving_window_width=15`
 
 <img src="fig/README-rolling-6.png" style="display: block; margin: auto;" />
 

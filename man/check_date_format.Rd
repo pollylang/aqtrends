@@ -2,7 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{check_date_format}
 \alias{check_date_format}
-\title{Function to check that a character string specifying a data is in the format YYYY-mm-dd (for later parsing by \code{lubridate::ymd()})}
+\title{Check that a character string is in correct date format}
 \usage{
 check_date_format(date.string)
 }
@@ -13,5 +13,5 @@ check_date_format(date.string)
 Logical value indicating whether the string is in the form YYYY-mm-dd (TRUE) or not (FALSE)
 }
 \description{
-Function to check that a character string specifying a data is in the format YYYY-mm-dd (for later parsing by \code{lubridate::ymd()})
+Check that a character string is in correct date format
 }

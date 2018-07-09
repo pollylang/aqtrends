@@ -2,8 +2,7 @@
 % Please edit documentation in R/aqtrends_helpers.R
 \name{trends_plots_helper}
 \alias{trends_plots_helper}
-\title{Function to plot average trends in pollutant concentration (for individual sites or averaged over all sites). Used in the
-\code{average_trends} function}
+\title{Plot average trends in pollutant concentration}
 \usage{
 trends_plots_helper(df, sites, poll, stat, smooth.method, start.date, end.date)
 }
@@ -25,6 +24,5 @@ A plot of the average trend in \code{poll} concentration over the period \code{s
 for each monitoring site or averaged over all monitoring sites
 }
 \description{
-Function to plot average trends in pollutant concentration (for individual sites or averaged over all sites). Used in the
-\code{average_trends} function
+Plot average trends in pollutant concentration
 }
