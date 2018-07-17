@@ -4,7 +4,7 @@
 \alias{site_flux_bias}
 \title{The difference in concentration between opening and closing sites as a function of year}
 \usage{
-site_flux_bias(obs, pollutant, stat = "median", smooth.method = "loess")
+site_flux_bias(obs, pollutant, stat = "median")
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,

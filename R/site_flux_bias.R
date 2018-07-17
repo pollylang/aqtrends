@@ -40,14 +40,12 @@
 
 site_flux_bias <- function(obs,
                               pollutant,
-                              stat = "median",
-                              smooth.method = "loess"){
+                              stat = "median"){
 
   ## Check arguments
   check_arguments(obs = obs,
                   pollutant = pollutant,
-                  stat = stat,
-                  smooth.method = smooth.method)
+                  stat = stat)
 
 
   ## Create data frame of moving sites as a function of year (i.e. which sites open/close in each year)
@@ -114,6 +112,12 @@ site_flux_bias <- function(obs,
       y.title <- openair::quickText(paste0("Cumulative difference in ", pollutant, " concentration (ugm-3)"))
     } else{
       y.title <- openair::quickText(paste0("Cumulative weighted difference in ", pollutant, " concentration (ugm-3)"))
+    }
+
+    if(nrow(difference) <= 5){
+      smooth.method <- "gam"
+    } else{
+      smooth.method <- "loess"
     }
 
     plot <- ggplot(difference, aes_string(x = "date", y = y.var)) +

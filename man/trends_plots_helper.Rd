@@ -4,7 +4,7 @@
 \alias{trends_plots_helper}
 \title{Plot average trends in pollutant concentration}
 \usage{
-trends_plots_helper(df, sites, poll, stat, smooth.method, start.date, end.date)
+trends_plots_helper(df, sites, poll, stat, start.date, end.date)
 }
 \arguments{
 \item{df}{Data frame of average pollutant concentrations containing the variables \code{date}, \code{site_code}, \code{av_value}.}
@@ -15,9 +15,9 @@ trends_plots_helper(df, sites, poll, stat, smooth.method, start.date, end.date)
 
 \item{stat}{The statistic which was used for averaging (for the y axis label)}
 
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
-
 \item{start.date, end.date}{A string in the format "YYYY-MM-DD" specifying the starting date and the ending date for the trends.}
+
+\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
 }
 \value{
 A plot of the average trend in \code{poll} concentration over the period \code{start.date} - code{end.date} either

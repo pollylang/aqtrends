@@ -166,12 +166,14 @@ average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALS
   if(nrow(df) > 1){
 
     df.out <- df %>%
-      mutate(n = length(unique(site_code))) %>%
       mutate(date = if(avg.time == "year"){
         lubridate::year(date)
       } else if(avg.time == "month"){
         format(as.Date(date), "%Y-%m")
-      })
+      }) %>%
+      group_by(date) %>%
+      mutate(n = length(unique(site_code))) %>%
+      ungroup()
 
     if(sites == FALSE){
       df.out <- df.out %>%
@@ -360,7 +362,13 @@ check_date_format <- function(date.string){
 #' for each monitoring site or averaged over all monitoring sites
 
 
-trends_plots_helper <- function(df, sites, poll, stat, smooth.method, start.date, end.date){
+trends_plots_helper <- function(df, sites, poll, stat, start.date, end.date){
+
+  if(nrow(df) <= 5){
+    smooth.method <- "gam"
+  } else{
+    smooth.method <- "loess"
+  }
 
   plot <- ggplot(df, aes(x = date, y = av_value)) +
     geom_point() +

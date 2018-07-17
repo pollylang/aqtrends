@@ -53,8 +53,8 @@ rolling_change_trend <- function(obs,
                              start.date = "2000-01-01",
                              end.date = "2017-12-31",
                              data.capture = 90,
-                             smooth.method = "loess",
-                             parallel = FALSE){
+                             parallel = FALSE,
+                             verbose = FALSE){
 
   ## Check arguments
   check_arguments(obs = obs,
@@ -64,7 +64,6 @@ rolling_change_trend <- function(obs,
                   start.date = start.date,
                   end.date = end.date,
                   data.capture = data.capture,
-                  smooth.method = smooth.method,
                   parallel = parallel)
 
 
@@ -82,7 +81,7 @@ rolling_change_trend <- function(obs,
 
     range <- paste0(as.character(start), " - ", as.character(end)) # date range of window
 
-    print(paste0("Calculating rolling trend for the window: ", range))
+    if(verbose == TRUE) print(paste0("Calculating rolling trend for the window: ", range))
 
     # Conditional branching - different averaging functions for pollutants and pollutant ratios
     if(!(stringr::str_detect(pollutant, "/"))){
@@ -130,6 +129,7 @@ rolling_change_trend <- function(obs,
       add_row(date = first.row$date, av_value = first.row$av_value, n = first.row$n,
               moving_window = paste0(first.row$moving_window, ".1"), window_width = first.row$window_width,
               trend = first.row$trend, .before = 1) %>% # add first row (initialise - delta y1)
+      mutate(moving_window = ifelse(moving_window == first.row$moving_window, paste0(first.row$moving_window, ".2"), moving_window)) %>%
       group_by(moving_window) %>%
       summarise(trend = unique(trend),
                 n = unique(n),
@@ -154,6 +154,12 @@ rolling_change_trend <- function(obs,
   # Plot rolling change trend (concentration change as a function of the year)
   period_plot <- function(df){
 
+    if(nrow(df) <= 5){
+      smooth.method <- "gam"
+    } else{
+      smooth.method <- "loess"
+    }
+
     p <- df %>%
       ggplot(aes(x = date, y = trend_difference)) +
       geom_point() +
@@ -166,9 +172,9 @@ rolling_change_trend <- function(obs,
       theme_bw() +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            axis.title = element_text(size = 12),
-            #axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
-            axis.text = element_text(size = 12))
+            axis.title = element_text(size = 10),
+            axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+            axis.text = element_text(size = 10))
 
     return(p)
 

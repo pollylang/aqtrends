@@ -5,7 +5,7 @@
 \title{Compare average trend over all sites with average trend over long term sites}
 \usage{
 average_trends(obs, pollutant, stat = "median", start.date = "2000-01-01",
-  end.date = "2017-12-31", data.capture = 90, smooth.method = "loess")
+  end.date = "2017-12-31", data.capture = 90)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,

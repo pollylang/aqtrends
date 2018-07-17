@@ -54,7 +54,6 @@ rolling_trends <- function(obs,
                            start.date = "2000-01-01",
                            end.date = "2017-12-31",
                            data.capture = 90,
-                           smooth.method = "loess",
                            parallel = TRUE){
 
 
@@ -66,7 +65,6 @@ rolling_trends <- function(obs,
                   start.date = start.date,
                   end.date = end.date,
                   data.capture = data.capture,
-                  smooth.method = smooth.method,
                   parallel = parallel)
 
 
@@ -123,7 +121,7 @@ rolling_trends <- function(obs,
 
 
   # Function to plot rolling trend plots (compared to overall trend)
-  rollingav_plot <- function(df, pollutant, smooth.method){
+  rollingav_plot <- function(df, pollutant){
 
     rolling.yr <- df %>%
       ggplot(aes(x = date, y = av_value, group = as.factor(moving_window), color=trend)) +
@@ -139,6 +137,12 @@ rolling_trends <- function(obs,
             axis.title = element_text(size = 12),
            axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
            axis.text.y = element_text(size = 12))
+
+    if(length(unique(df$date)) <= 5){
+      smooth.method <- "gam"
+    } else{
+      smooth.method <- "loess"
+    }
 
     rolling.all <- df %>%
       ggplot(aes(x = date, y = av_value, color=trend)) +
@@ -224,7 +228,7 @@ rolling_trends <- function(obs,
   names(rolling) <- rolling.names
 
   # Plots
-  rolling.plots <- purrr::map(rolling, rollingav_plot, pollutant = pollutant, smooth.method = smooth.method)
+  rolling.plots <- purrr::map(rolling, rollingav_plot, pollutant = pollutant)
 
   return(rolling.plots)
 }

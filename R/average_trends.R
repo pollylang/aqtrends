@@ -52,8 +52,7 @@ average_trends <- function(obs,
                          stat = "median",
                          start.date = "2000-01-01",
                          end.date = "2017-12-31",
-                         data.capture = 90,
-                         smooth.method = "loess"){
+                         data.capture = 90){
 
   ## Check arguments
   check_arguments(obs = obs,
@@ -61,8 +60,7 @@ average_trends <- function(obs,
                   stat = stat,
                   start.date = start.date,
                   end.date = end.date,
-                  data.capture = data.capture,
-                  smooth.method = smooth.method)
+                  data.capture = data.capture)
 
 
   ## Data averaging (conditional on whether to calculate for pollutant or pollutant ratio)
@@ -93,14 +91,14 @@ average_trends <- function(obs,
 
   ## Plots
 
-  allsites.av.plot <- trends_plots_helper(allsites.av, sites = FALSE, pollutant, stat, smooth.method, start.date, end.date)
-  allsites.sites.plot <- trends_plots_helper(allsites.sites, sites = TRUE, pollutant, stat, smooth.method, start.date, end.date)
+  allsites.av.plot <- trends_plots_helper(allsites.av, sites = FALSE, pollutant, stat, start.date, end.date)
+  allsites.sites.plot <- trends_plots_helper(allsites.sites, sites = TRUE, pollutant, stat, start.date, end.date)
 
   # If long term sites...
   if(nrow(longterm.av) > 0){
 
-    longterm.av.plot <- trends_plots_helper(longterm.av, sites = FALSE, pollutant, stat, smooth.method, start.date, end.date)
-    longterm.sites.plot <- trends_plots_helper(longterm.sites, sites = TRUE, pollutant, stat, smooth.method, start.date, end.date)
+    longterm.av.plot <- trends_plots_helper(longterm.av, sites = FALSE, pollutant, stat, start.date, end.date)
+    longterm.sites.plot <- trends_plots_helper(longterm.sites, sites = TRUE, pollutant, stat, start.date, end.date)
 
     # Compare NOx time series from all monitoring sites and long term sites
     trends <- cowplot::plot_grid(allsites.av.plot,

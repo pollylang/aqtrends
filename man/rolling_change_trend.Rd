@@ -6,7 +6,7 @@
 \usage{
 rolling_change_trend(obs, pollutant, window.width, stat = "median",
   start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90,
-  smooth.method = "loess", parallel = FALSE)
+  parallel = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
@@ -28,11 +28,11 @@ to calculate and plot the change trend.}
 rolling regression, only data from sites with data capture >= \code{data.capture} over the period encapsulated by the
 moving window will be included in the rolling regression.}
 
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
-
 \item{parallel}{Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 number of cores - 1.}
+
+\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
 }
 \value{
 A plot of the proxy trend (change in concentration over an N year period as a function of time).
