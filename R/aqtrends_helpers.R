@@ -306,19 +306,44 @@ pollutant_ratio_data_capture <- function(df.list, avg.time, start, end, data.cap
     return(out)
   }
 
+
+  # Function to get vector of sites that are open over the entire time period (measuring in each month of time period) for both pollutants
+  get_open_sites <- function(data){
+
+    dates.window <- unique(format(as.Date(data$date), "%Y-%m"))
+
+    # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
+    open.sites <- data %>%
+      mutate(date = format(as.Date(date), "%Y-%m")) %>%
+      dplyr::select(date, site_code) %>%
+      distinct() %>%
+      group_by(site_code) %>%
+      summarise(n = n()) %>%
+      ungroup() %>%
+      filter(n >= length(dates.window)) %>%
+      dplyr::select(site_code) %>% pull()
+
+    return(open.sites)
+  }
+
+
   # Map data capture function over both obs data frames (numerator pollutant and denominator pollutant)
   dat <- purrr::map(df.list, data.cap, begin = start, finish = end, dc = data.capture)
+  sites.open <- purrr::map(dat, get_open_sites) # sites measuring over entire period (each month of period)
+  sites.open <- intersect(sites.open[[1]], sites.open[[2]]) # sites measuring for BOTH pollutants
+  dat <- dat %>%
+    lapply(function(x) x %>% filter(.$site_code %in% sites.open)) # filter to only include sites measuring over entire period
 
   if(nrow(dat[[1]]) > 1 & nrow(dat[[2]]) > 1){
 
     # Calculate pollutant ratio for the filtered data
-    out <- calculate_pollutant_ratio(dat, avg.time = avg.time, statistic = statistic, sites = sites)
+    out <- calculate_pollutant_ratio(dat, avg.time = avg.time, statistic = statistic, sites = sites) # calculate pollutant ratio (helper)
 
   } else{
 
-    out <- data.frame("date" = as.POSIXct(character()),
-                         "av_value" = numeric(),
-                         "n" = numeric())
+    out <- data.frame(date = numeric(),
+                      av_value = numeric(),
+                      n = integer())
 
   }
 

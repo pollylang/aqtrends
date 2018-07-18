@@ -88,17 +88,44 @@ rolling_change_trend <- function(obs,
 
       dat <- obs %>% filter(date >= start, date <= end) # filter to include dates within moving window
 
+
       longterm.dat <- data_capture(dat, threshold = data.capture, start.date = as.character(start),
-                                   end.date = as.character(end)) %>% # filter to include only sites with sufficient data capture over window
-        average_data(avg.time = "year", statistic = stat) %>% # calculate annual average concentration
-        mutate(moving_window = paste0(range, " (", n, ")"), # moving window variable (date range and number of sites)
-               window_width = window.width) # window width variable (n)
+                                   end.date = as.character(end)) # filter to include only sites with sufficient data capture over window
+
+      if(nrow(longterm.dat) > 0){
+
+        dates.window <- unique(format(as.Date(data$date), "%Y-%m"))
+
+        # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
+        open.sites <- longterm.dat %>%
+          mutate(month = format(as.Date(date), "%Y-%m"))
+          dplyr::select(month, site_code) %>%
+          distinct() %>%
+          group_by(site_code) %>%
+          summarise(n = n()) %>%
+          ungroup() %>%
+          filter(n == (length(dates.window))) %>%
+          dplyr::select(site_code) %>% pull()
+
+        longterm.dat <- longterm.dat %>%
+          filter(site_code %in% open.sites) %>% # filter to only include sites open for entire duration of window
+          average_data(avg.time = "year", statistic = stat) %>% # calculate annual average concentration
+          mutate(moving_window = range, # moving window variable (date range and number of sites)
+                 window_width = window.width) # window width variable (n)
+      } else{
+        longterm.dat <- data.frame(date = numeric(),
+                                   av_value = numeric(),
+                                   n = integer(),
+                                   moving_window = character(),
+                                   window_width = numeric())
+      }
+
 
     } else{
 
       longterm.dat <- pollutant_ratio_data_capture(obs, avg.time = "year", as.character(start),
                                                    as.character(end), data.capture, statistic = stat) %>% # helper function filters by moving window range and data capture, then averages data
-        mutate(moving_window = paste0(range, " (", n, ")"), # moving window variable (date range and number of sites)
+        mutate(moving_window = range, # moving window variable (date range and number of sites)
                window_width = window.width) # window width variable (n)
 
     }
@@ -108,12 +135,18 @@ rolling_change_trend <- function(obs,
     if(nrow(longterm.dat) > 1){
       lm.trend <- lm(av_value ~ date, data = longterm.dat) # fit linear model (rolling regression)
       trend <- as.numeric(lm.trend$coefficients[2]) # extract linear model coefficient (beta_i)
+
+      longterm.dat <- longterm.dat %>%
+        mutate(trend = rep(trend, times = nrow(longterm.dat))) # append linear coefficient to data frame
     } else{
-      trend <- NA # if there are no long term sites, will return NA in the trend column
+      trend <- NA  # if there are no long term sites, will return NA in the trend column
+      longterm.dat <- longterm.dat %>%
+        mutate(trend = rep(trend, times = nrow(longterm.dat))) %>%
+        mutate(moving_window = as.character(moving_window),
+               trend = as.numeric(trend)) # mutate columns into same classes as those with data (for purrr::map_dfr rowbind operation with other moving window data)
     }
 
-    longterm.dat <- longterm.dat %>%
-      mutate(trend = rep(trend, times = nrow(longterm.dat))) # append linear coefficient to data frame
+
 
     return(longterm.dat)
 
