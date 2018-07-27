@@ -94,11 +94,11 @@ rolling_change_trend <- function(obs,
 
       if(nrow(longterm.dat) > 0){
 
-        dates.window <- unique(format(as.Date(data$date), "%Y-%m"))
+        dates.window <- unique(format(as.Date(longterm.dat$date), "%Y-%m"))
 
         # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
         open.sites <- longterm.dat %>%
-          mutate(month = format(as.Date(date), "%Y-%m"))
+          mutate(month = format(as.Date(date), "%Y-%m")) %>%
           dplyr::select(month, site_code) %>%
           distinct() %>%
           group_by(site_code) %>%
@@ -207,7 +207,9 @@ rolling_change_trend <- function(obs,
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
             axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
-            axis.text = element_text(size = 10))
+            axis.text = element_text(size = 10),
+            panel.border = element_blank(),
+            axis.line = element_line())
 
     return(p)
 

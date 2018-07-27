@@ -402,7 +402,9 @@ trends_plots_helper <- function(df, sites, poll, stat, start.date, end.date){
     scale_x_continuous(breaks = round(seq(as.numeric(lubridate::year(start.date)), as.numeric(lubridate::year(end.date)), by = 2),1)) +
     theme_bw() +
     theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank())
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          axis.line = element_line())
 
   if(sites == TRUE){
     plot <- plot +

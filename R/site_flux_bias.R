@@ -131,7 +131,9 @@ site_flux_bias <- function(obs,
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
             axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
-            axis.text.y = element_text(size = 10))
+            axis.text.y = element_text(size = 10),
+            panel.border = element_blank(),
+            axis.line = element_line())
 
     return(plot)
 
