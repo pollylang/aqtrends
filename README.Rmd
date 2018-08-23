@@ -71,8 +71,7 @@ The differences between the average trend (left) and the long term trend (right)
 
 ```{r av_trends, fig.width=10}
 nox.av.trends <- average_trends(data, pollutant = "nox", stat = "median", 
-                                start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90,
-                                smooth.method = "loess")
+                                start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90)
 
 cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, ncol = 2)
 ```
@@ -81,7 +80,7 @@ The presence of a biasing effect can be confirmed by plotting the differences in
 
 
 ```{r difference, fig.width=15}
-site_flux_bias(data, pollutant = "nox", stat = "median", smooth.method = "loess")$all
+site_flux_bias(data, pollutant = "nox", stat = "median")$all
 ```
 
 &nbsp;
@@ -99,6 +98,5 @@ Having identified the effect of bias on the average trend, the `rolling_change_t
 
 
 ```{r change_trends}
-rolling_change_trend(data, "nox", window.width = 2, parallel = TRUE)
-
+rolling_change_trend(data, "nox", window.width = 3, avg.ts = "year", parallel = TRUE)
 ```

@@ -14,8 +14,6 @@
 #'
 #' @param stat The metric (character string) used to average the ambient concentration data by year. Options: "median", "mean".
 #'
-#' @param smooth.method The smoothing method to use in the \code{geom_smooth} function when plotting trends.
-#'
 #' @return A list of plots:
 #' \itemize{
 #'     \item \code{difference} - a plot of the difference between the average concentration of opening sites and closing
@@ -32,7 +30,7 @@
 #'
 #'@examples
 #'\dontrun{
-#'site_flux_bias(obs.nox, pollutant = "nox", stat = "median", smooth.method = "gam")
+#'site_flux_bias(obs.nox, pollutant = "nox", stat = "median")
 #'}
 #'
 #' @export
