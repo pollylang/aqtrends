@@ -4,7 +4,7 @@
 \alias{pollutant_ratio_data_capture}
 \title{Calculate average pollutant ratios (with data capture constraint)}
 \usage{
-pollutant_ratio_data_capture(df.list, avg.time, start, end, data.capture,
+pollutant_ratio_data_capture(df.list, avg.time, start, end, data.capture, res,
   statistic = "mean", sites = FALSE)
 }
 \arguments{

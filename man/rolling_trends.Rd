@@ -33,8 +33,6 @@ moving window will be included in the rolling regression.}
 \item{parallel}{Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 number of cores - 1.}
-
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
 }
 \value{
 A plot (or, if \code{window.width} is a vector, a list of plots labelled by the value of the window width) of the
@@ -50,7 +48,7 @@ closing of monitoring sites with different magnitudes over the period examined u
 rolling_trends(obs.nox, pollutant = "nox",
 window.width = c(2, 5, 7, 10), stat = "median",
 start.date = "2000-01-01", end.date = "2017-12-31",
-data.capture = 90, smooth.method = "gam",
+data.capture = 90,
 parallel = FALSE)
 }
 

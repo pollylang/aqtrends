@@ -15,6 +15,10 @@
 #'
 #' @param window.width The width of the moving window, n, over which the change in concentration is calculated (in years).
 #'
+#' @param avg.ts The resolution to which to average each time series, upon which the rolling regression is carried out.
+#' For example, setting \code{avg.ts = "day"} means the rolling regression will be carried out on the daily average concentrations
+#' from each time series (monitoring site). Options are: "year", "month", "week", and "day".
+#'
 #' @param stat The metric (character string) used to average the ambient concentration data by year. Options: "median", "mean".
 #'
 #' @param start.date,end.date The starting and ending dates (character string) of the period of interest over which
@@ -24,21 +28,23 @@
 #' rolling regression, only data from sites with data capture >= \code{data.capture} over the period encapsulated by the
 #' moving window will be included in the rolling regression.
 #'
-#' @param smooth.method The smoothing method to use in the \code{geom_smooth} function when plotting trends.
-#'
 #' @param parallel Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 #' parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 #' number of cores - 1.
 #'
-#' @return A plot of the proxy trend (change in concentration over an N year period as a function of time).
+#' @param verbose Logical indicating whether to print the date range of the rolling window over which the calculation is
+#' being applied.
 #'
-#' @import dplyr ggplot2 parallel doParallel foreach
+#' @return A plot of the rolling change trend.
+#'
+#' @import dplyr ggplot2 parallel doParallel foreach lubridate
 #'
 #' @examples
 #' \dontrun{
 #' rolling_change_trend(obs.nox,
 #' pollutant = "nox",
 #' window.width = 3,
+#' avg.ts = "year",
 #' stat = "median",
 #' start.date = "2000-01-01", end.date = "2017-12-31")
 #' }
@@ -47,14 +53,16 @@
 
 
 rolling_change_trend <- function(obs,
-                             pollutant,
-                             window.width,
-                             stat = "median",
-                             start.date = "2000-01-01",
-                             end.date = "2017-12-31",
-                             data.capture = 90,
-                             parallel = FALSE,
-                             verbose = FALSE){
+                                 pollutant,
+                                 window.width,
+                                 avg.ts = "year",
+                                 stat = "median",
+                                 start.date = "2000-01-01",
+                                 end.date = "2017-12-31",
+                                 data.capture = 90,
+                                 parallel = FALSE,
+                                 verbose = FALSE){
+
 
   ## Check arguments
   check_arguments(obs = obs,
@@ -64,7 +72,8 @@ rolling_change_trend <- function(obs,
                   start.date = start.date,
                   end.date = end.date,
                   data.capture = data.capture,
-                  parallel = parallel)
+                  parallel = parallel,
+                  avg.ts = avg.ts)
 
 
   # Worker function for calculating rolling trends over n year periods
@@ -76,8 +85,16 @@ rolling_change_trend <- function(obs,
     start <- d1
     end <- d1
 
-    lubridate::year(end) <- lubridate::year(end) + time # create 'end' object to specify end of moving window where end = i + (n-1)
-    end <- end %>% lubridate::year() %>% paste0("-12-31") %>% lubridate::ymd()
+    if(avg.ts == "year"){
+      lubridate::year(end) <- lubridate::year(end) + time # create 'end' object to specify end of moving window where end = i + (n-1)
+      end <- end %>% lubridate::year() %>% paste0("-12-31") %>% lubridate::ymd()
+    } else if(avg.ts == "month"){
+      end <- end %m+% months(time)
+      end <- end %>%
+        format("%Y-%m") %>%
+        paste("-", days_in_month(end), sep="") %>%
+        ymd()
+    }
 
     range <- paste0(as.character(start), " - ", as.character(end)) # date range of window
 
@@ -88,30 +105,22 @@ rolling_change_trend <- function(obs,
 
       dat <- obs %>% filter(date >= start, date <= end) # filter to include dates within moving window
 
-
-      longterm.dat <- data_capture(dat, threshold = data.capture, start.date = as.character(start),
-                                   end.date = as.character(end)) # filter to include only sites with sufficient data capture over window
+      longterm.dat <- dat
+      #longterm.dat <- data_capture(dat, threshold = data.capture, start.date = as.character(start),
+      #                             end.date = as.character(end)) # filter to include only sites with sufficient data capture over window
 
       if(nrow(longterm.dat) > 0){
 
-        dates.window <- unique(format(as.Date(longterm.dat$date), "%Y-%m"))
-
-        # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
-        open.sites <- longterm.dat %>%
-          mutate(month = format(as.Date(date), "%Y-%m")) %>%
-          dplyr::select(month, site_code) %>%
-          distinct() %>%
-          group_by(site_code) %>%
-          summarise(n = n()) %>%
-          ungroup() %>%
-          filter(n == (length(dates.window))) %>%
-          dplyr::select(site_code) %>% pull()
+        open.sites <- sites_open_throughout_window(longterm.dat,
+                                                   resolution = ifelse(avg.ts == "year", "month", "day"),
+                                                   data.capture = 1)
 
         longterm.dat <- longterm.dat %>%
           filter(site_code %in% open.sites) %>% # filter to only include sites open for entire duration of window
-          average_data(avg.time = "year", statistic = stat) %>% # calculate annual average concentration
+          average_data(avg.time = avg.ts, statistic = stat, sites = FALSE, date.format = TRUE) %>% # calculate annual average concentration
           mutate(moving_window = range, # moving window variable (date range and number of sites)
                  window_width = window.width) # window width variable (n)
+
       } else{
         longterm.dat <- data.frame(date = numeric(),
                                    av_value = numeric(),
@@ -123,19 +132,34 @@ rolling_change_trend <- function(obs,
 
     } else{
 
-      longterm.dat <- pollutant_ratio_data_capture(obs, avg.time = "year", as.character(start),
-                                                   as.character(end), data.capture, statistic = stat) %>% # helper function filters by moving window range and data capture, then averages data
+      longterm.dat <- pollutant_ratio_data_capture(obs, avg.time = avg.ts, as.character(start),
+                                                   as.character(end), data.capture,
+                                                   res = ifelse(avg.ts == "year", "month", "day"),
+                                                   statistic = stat, sites = FALSE) %>% # helper function filters by moving window range and data capture, then averages data
         mutate(moving_window = range, # moving window variable (date range and number of sites)
-               window_width = window.width) # window width variable (n)
-
+               window_width = window.width)  # window width variable (n)
     }
 
 
     # Rolling regression
+
     if(nrow(longterm.dat) > 1){
-      lm.trend <- lm(av_value ~ date, data = longterm.dat) # fit linear model (rolling regression)
+      # Convert dates to different scale (relative to start of window - i.e. start from 1 = start)
+      if(avg.ts == "year"){
+        start.yr <- year(start)
+        longterm.dat <- longterm.dat %>%
+          mutate(x = year(date) - start.yr)
+      } else if(avg.ts == "month"){
+        seq.months <- seq.Date(start, end, "1 month")
+        key <- data.frame("x" = 1:length(seq.months), "date" = seq.months)
+        longterm.dat <- left_join(longterm.dat, key, by = "date")
+      }
+
+      # Linear regression
+      lm.trend <- lm(av_value ~ x, data = longterm.dat) # fit linear model (rolling regression)
       trend <- as.numeric(lm.trend$coefficients[2]) # extract linear model coefficient (beta_i)
 
+      # Add regression coefficient to output data frame
       longterm.dat <- longterm.dat %>%
         mutate(trend = rep(trend, times = nrow(longterm.dat))) # append linear coefficient to data frame
     } else{
@@ -166,7 +190,7 @@ rolling_change_trend <- function(obs,
       group_by(moving_window) %>%
       summarise(trend = unique(trend),
                 n = unique(n),
-                date = median(date, na.rm = TRUE),
+                date = (min(date) + floor((max(date)-min(date))/2)),
                 window_width = unique(window_width)) %>%
       ungroup() %>%
       arrange(date) %>%
@@ -200,13 +224,11 @@ rolling_change_trend <- function(obs,
       xlab("Year") +
       ylab(openair::quickText(paste("Change in ", pollutant, " concentration (ug m-3)"))) +
       geom_text(aes(label = n), vjust = 1.3, size = 3) +
-      scale_x_continuous(breaks = round(seq(as.numeric(lubridate::year(start.date)),
-                                            as.numeric(lubridate::year(end.date)), by = 2),1)) +
       theme_bw() +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
-            axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+            axis.text.x = element_text(size = 10),
             axis.text = element_text(size = 10),
             panel.border = element_blank(),
             axis.line = element_line())
@@ -215,18 +237,18 @@ rolling_change_trend <- function(obs,
 
   }
 
-
   # Define the n moving windows
   start <- lubridate::ymd(start.date)
   end <- lubridate::ymd(end.date)
 
-  window1 <- seq.Date(start, end, by = "1 year") %>%
-    .[-length(.)] # remove last element (will be the end of the final moving window)
+  if(avg.ts == "year"){
+    interval <- "1 year"
+  } else if(avg.ts == "month"){
+    interval <- "1 month"
+  }
 
-  end.window <- window1[length(window1)]
-  lubridate::year(end.window) <- lubridate::year(end) - (window.width-1) # set the start point of the final moving window as the time period end - (moving window width - 1)
-
-  window1 <- window1[window1 <= end.window]
+  window1 <- seq.Date(start, end, by = interval)
+  window1 <- window1[1:(length(window1) - (window.width-1))]  # make sure that start date of final moving window is the time period end - (moving window width - 1)
 
 
   # For each moving window, compute rolling regression
@@ -235,16 +257,16 @@ rolling_change_trend <- function(obs,
     cl<-makeCluster(no_cores)
     registerDoParallel(cl)
 
-    rolling.df <- foreach(d1 = window1, .combine = "rbind", .packages = c("dplyr", "ggplot2"),
-                          .export = c("data_capture", "average_data", "pollutant_ratio_data_capture", "calculate_pollutant_ratio")) %dopar%
+    rolling.df <- foreach(d1 = window1, .combine = "rbind", .packages = c("dplyr", "ggplot2", "lubridate"),
+                          .export = c("data_capture", "average_data", "sites_open_throughout_window", "pollutant_ratio_data_capture", "calculate_pollutant_ratio")) %dopar%
       try(rolling_worker(d1, pollutant = pollutant, window.width = window.width, stat = stat))
 
     stopImplicitCluster()
   } else{
     rolling.df <- tryCatch({purrr::map_dfr(window1, rolling_worker,
-                                 pollutant = pollutant,
-                                 window.width = window.width,
-                                 stat = stat)
+                                           pollutant = pollutant,
+                                           window.width = window.width,
+                                           stat = stat)
     }, error = function(e){
       data.frame("date" = as.POSIXct(character()),
                  "av_value" = numeric(),
@@ -267,5 +289,5 @@ rolling_change_trend <- function(obs,
     return(plots)
   }
 
-
 }
+

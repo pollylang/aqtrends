@@ -6,7 +6,7 @@
 \usage{
 check_arguments(obs = NULL, pollutant = NULL, window.width = NULL,
   stat = NULL, start.date = NULL, end.date = NULL, data.capture = NULL,
-  smooth.method = NULL, parallel = NULL)
+  smooth.method = NULL, parallel = NULL, unit = NULL, avg.ts = NULL)
 }
 \arguments{
 \item{obs, pollutant, window.width, stat, start.date, end.date, data.capture, smooth.method, parallel}{Pass the arguments to the

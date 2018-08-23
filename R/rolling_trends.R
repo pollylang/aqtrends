@@ -24,8 +24,6 @@
 #' rolling regression, only data from sites with data capture >= \code{data.capture} over the period encapsulated by the
 #' moving window will be included in the rolling regression.
 #'
-#' @param smooth.method The smoothing method to use in the \code{geom_smooth} function when plotting trends.
-#'
 #' @param parallel Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 #' parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 #' number of cores - 1.
@@ -41,7 +39,7 @@
 #' rolling_trends(obs.nox, pollutant = "nox",
 #' window.width = c(2, 5, 7, 10), stat = "median",
 #' start.date = "2000-01-01", end.date = "2017-12-31",
-#' data.capture = 90, smooth.method = "gam",
+#' data.capture = 90,
 #' parallel = FALSE)
 #' }
 #'
@@ -130,12 +128,13 @@ rolling_trends <- function(obs,
       scale_color_gradient2(low = "darkblue", mid = "darkviolet", high = "darkred", midpoint = 0) +
       xlab("Year") +
       ylab(openair::quickText(paste(pollutant, " concentration (ug m-3)"))) +
-      scale_x_continuous(breaks = round(seq(lubridate::year(lubridate::ymd(start.date)), lubridate::year(lubridate::ymd(end.date)), by = 2),1)) +
+      #scale_x_continuous(breaks = round(seq(lubridate::year(lubridate::ymd(start.date)), lubridate::year(lubridate::ymd(end.date)), by = 2),1)) +
       theme_bw() +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
-           axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+           #axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+           axis.text.x = element_text(size = 10),
            axis.text.y = element_text(size = 10),
            panel.border = element_blank(),
            axis.line = element_line())
@@ -154,12 +153,13 @@ rolling_trends <- function(obs,
                             high="darkred", space ="Lab" ) +
       labs(x = "Year", colour = "Trend", fill = "Trend") +
       ylab(openair::quickText(paste(pollutant, " concentration (ug m-3)"))) +
-      scale_x_continuous(breaks = round(seq(lubridate::year(lubridate::ymd(start.date)), lubridate::year(lubridate::ymd(end.date)), by = 2),1)) +
+      #scale_x_continuous(breaks = round(seq(lubridate::year(lubridate::ymd(start.date)), lubridate::year(lubridate::ymd(end.date)), by = 2),1)) +
       theme_bw() +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
-            axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+            #axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+            axis.text.x = element_text(size = 10),
             axis.text.y = element_text(size = 10),
             panel.border = element_blank(),
             axis.line = element_line())

@@ -4,9 +4,9 @@
 \alias{rolling_change_trend}
 \title{Rolling change trends (extract true trend)}
 \usage{
-rolling_change_trend(obs, pollutant, window.width, stat = "median",
-  start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90,
-  parallel = FALSE, verbose = FALSE)
+rolling_change_trend(obs, pollutant, window.width, avg.ts = "year",
+  stat = "median", start.date = "2000-01-01", end.date = "2017-12-31",
+  data.capture = 90, parallel = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
@@ -18,6 +18,10 @@ must be supplied as a list of data frames in the order they are given in the rat
 separate the two pollutants with a forward slash e.g. \code{pollutant = "no2/nox"}.}
 
 \item{window.width}{The width of the moving window, n, over which the change in concentration is calculated (in years).}
+
+\item{avg.ts}{The resolution to which to average each time series, upon which the rolling regression is carried out.
+For example, setting \code{avg.ts = "day"} means the rolling regression will be carried out on the daily average concentrations
+from each time series (monitoring site). Options are: "year", "month", "week", and "day".}
 
 \item{stat}{The metric (character string) used to average the ambient concentration data by year. Options: "median", "mean".}
 
@@ -32,10 +36,11 @@ moving window will be included in the rolling regression.}
 parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 number of cores - 1.}
 
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
+\item{verbose}{Logical indicating whether to print the date range of the rolling window over which the calculation is
+being applied.}
 }
 \value{
-A plot of the proxy trend (change in concentration over an N year period as a function of time).
+A plot of the rolling change trend.
 }
 \description{
 Removal of distorting effect of site movement to reveal underlying trend by using changes in
@@ -48,6 +53,7 @@ closing sites with extreme magnitudes.
 rolling_change_trend(obs.nox,
 pollutant = "nox",
 window.width = 3,
+avg.ts = "year",
 stat = "median",
 start.date = "2000-01-01", end.date = "2017-12-31")
 }

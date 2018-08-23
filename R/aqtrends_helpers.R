@@ -160,7 +160,7 @@ data_capture <- function(data, threshold, start.date = NULL, end.date = NULL) {
 #'
 #' @return Data frame of annual/monthly average concentration data
 
-average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALSE){
+average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALSE, date.format = FALSE){
 
 
   if(nrow(df) > 1){
@@ -169,7 +169,9 @@ average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALS
       mutate(date = if(avg.time == "year"){
         lubridate::year(date)
       } else if(avg.time == "month"){
-        format(as.Date(date), "%Y-%m")
+        format(lubridate::date(date), "%Y-%m")
+      } else if(avg.time == "day"){
+        lubridate::date(date)
       }) %>%
       group_by(date) %>%
       mutate(n = length(unique(site_code))) %>%
@@ -182,7 +184,8 @@ average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALS
           median(value, na.rm = TRUE)}
           else if(statistic == "mean"){
             av_value = mean(value, na.rm = TRUE)},
-          n = unique(n))
+          n = unique(n)) %>%
+        ungroup()
     } else{
       df.out <- df.out %>%
         group_by(date, site_code) %>%
@@ -190,7 +193,20 @@ average_data <- function(df, avg.time = "year", statistic = "mean", sites = FALS
           median(value, na.rm = TRUE)}
           else if(statistic == "mean"){
             av_value = mean(value, na.rm = TRUE)},
-          n = unique(n))
+          n = unique(n)) %>%
+        ungroup()
+    }
+
+    if(date.format == TRUE){
+      df.out <- df.out %>%
+        mutate(date = if(avg.time == "year"){
+          paste0(date, "-01-01")
+        } else if(avg.time == "month"){
+          paste0(date, "-01")
+        } else if(avg.time == "day"){
+          date
+        }) %>%
+        mutate(date = lubridate::ymd(date))
     }
 
     return(df.out)
@@ -244,7 +260,11 @@ calculate_pollutant_ratio <- function(df.list, avg.time, statistic, sites = FALS
     mutate(date = if(avg.time == "year"){ # convert date to year/year-month
         lubridate::year(date)
       } else if(avg.time == "month"){
-        format(as.Date(date), "%Y-%m")
+        format(lubridate::date(date), "%Y-%m")
+      } else if(avg.time == "week"){
+        format(paste0(lubridate::year(date), "-", lubridate::week(date)))
+      } else if(avg.time == "day"){
+        lubridate::date(date)
       }) %>%
     group_by(site_code) %>%
     filter(!(all(is.na(var1))) & !(all(is.na(var2)))) %>% # remove NA values
@@ -268,6 +288,16 @@ calculate_pollutant_ratio <- function(df.list, avg.time, statistic, sites = FALS
           av_value = mean(av_value, na.rm = TRUE)},
         n = unique(n))
   }
+
+  obs <- obs %>%
+    mutate(date = if(avg.time == "year"){
+      paste0(date, "-01-01")
+    } else if(avg.time == "month"){
+      paste0(date, "-01")
+    } else if(avg.time == "day"){
+      date
+    }) %>%
+    mutate(date = lubridate::ymd(date))
 
   return(obs)
 
@@ -295,41 +325,43 @@ calculate_pollutant_ratio <- function(df.list, avg.time, statistic, sites = FALS
 #' @return Data frame of annual/monthly average concentration data for the (filtered) pollutant ratio
 
 
-pollutant_ratio_data_capture <- function(df.list, avg.time, start, end, data.capture, statistic = "mean", sites = FALSE){
+pollutant_ratio_data_capture <- function(df.list, avg.time, start, end, data.capture, res,
+                                         statistic = "mean", sites = FALSE){
 
   # Filter to only include dates within start-end date range, then filter by data capture over that period
   data.cap <- function(df, begin, finish, dc){
     out <- df %>%
-      filter(date >= lubridate::ymd(begin), date <= lubridate::ymd(finish)) %>%
-      data_capture(threshold = dc, start.date = begin, end.date = finish)
+      filter(date >= lubridate::ymd(begin), date <= lubridate::ymd(finish)) #%>%
+      #data_capture(threshold = dc, start.date = begin, end.date = finish)
 
     return(out)
   }
 
 
   # Function to get vector of sites that are open over the entire time period (measuring in each month of time period) for both pollutants
-  get_open_sites <- function(data){
+  #get_open_sites <- function(data){
 
-    dates.window <- unique(format(as.Date(data$date), "%Y-%m"))
+  #  dates.window <- unique(format(as.Date(data$date), "%Y-%m"))
 
     # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
-    open.sites <- data %>%
-      mutate(date = format(as.Date(date), "%Y-%m")) %>%
-      dplyr::select(date, site_code) %>%
-      distinct() %>%
-      group_by(site_code) %>%
-      summarise(n = n()) %>%
-      ungroup() %>%
-      filter(n >= length(dates.window)) %>%
-      dplyr::select(site_code) %>% pull()
+  #  open.sites <- data %>%
+  #    mutate(date = format(as.Date(date), "%Y-%m")) %>%
+  #    dplyr::select(date, site_code) %>%
+  #    distinct() %>%
+  #    group_by(site_code) %>%
+  #    summarise(n = n()) %>%
+  #    ungroup() %>%
+  #    filter(n >= length(dates.window)) %>%
+  #    dplyr::select(site_code) %>% pull()
 
-    return(open.sites)
-  }
+  #  return(open.sites)
+  #}
 
 
   # Map data capture function over both obs data frames (numerator pollutant and denominator pollutant)
   dat <- purrr::map(df.list, data.cap, begin = start, finish = end, dc = data.capture)
-  sites.open <- purrr::map(dat, get_open_sites) # sites measuring over entire period (each month of period)
+  #sites.open <- purrr::map(dat, get_open_sites) # sites measuring over entire period (each month of period)
+  sites.open <- purrr::map(dat, sites_open_throughout_window, data.capture = 1, resolution = res)
   sites.open <- intersect(sites.open[[1]], sites.open[[2]]) # sites measuring for BOTH pollutants
   dat <- dat %>%
     lapply(function(x) x %>% filter(.$site_code %in% sites.open)) # filter to only include sites measuring over entire period
@@ -440,7 +472,9 @@ check_arguments <- function(obs = NULL,
                             end.date = NULL,
                             data.capture = NULL,
                             smooth.method = NULL,
-                            parallel = NULL){
+                            parallel = NULL,
+                            unit = NULL,
+                            avg.ts = NULL){
 
   # 1. obs
   if(!(is.null(obs))){
@@ -468,11 +502,11 @@ check_arguments <- function(obs = NULL,
 
 
   # 3. window.width
-  if(!(is.null(window.width))){
-    if(!(window.width >= 2 & window.width <= (lubridate::year(end.date) - lubridate::year(start.date)))){
-      stop("Incorrect 'window.width' argument. The argument must be an integer between 2 and the range of the input dates in years.")
-    }
-  }
+  #if(!(is.null(window.width))){
+  #  if(!(window.width >= 2 & window.width <= (lubridate::year(end.date) - lubridate::year(start.date)))){
+  #    stop("Incorrect 'window.width' argument. The argument must be an integer between 2 and the range of the input dates in years.")
+  #  }
+  #}
 
 
   # 4. stat
@@ -514,6 +548,61 @@ check_arguments <- function(obs = NULL,
     }
   }
 
+
+  # 9. avg.ts
+  if(!(is.null(avg.ts))){
+    if(!(avg.ts %in% c("year", "month"))){
+      stop("The 'avg.ts' argument must be one of the following: 'year', 'month'.")
+    }
+  }
+
+
+}
+
+
+
+#' Extract site codes of monitoring sites open throughout the duration of the moving window
+#'
+#' @param df Data frame of observations data from which to extract site codes
+#'
+#' @param resolution The time resolution for which to apply filtering. I.e. if \code{resolution} is "month", the function
+#' will select and return monitoring sites measuring over a certain threshold of months during the moving window period.
+#' Options: "month", "day"
+#'
+#' @param data.capture The data capture threshold to apply to filtering the sites. A value of 1 means that the site must
+#' have measurements for every month/day within the moving window, while a value of 0 means no filtering takes place at all.
+#' A value of 0.9 means that the site must have measurements for at least 90% of the months/days spanned by the moving window.
+#'
+#' @return A vector of site codes for monitoring sites open for the entire duration of the moving window (as specified by
+#' the filtering parameters in the arguments).
+
+
+sites_open_throughout_window <- function(df, resolution = "month", data.capture = 1){
+
+  if(resolution == "month"){
+    dates.window <- unique(format(as.Date(df$date), "%Y-%m"))
+  } else if(resolution == "day"){
+    dates.window <- unique(lubridate::date(df$date))
+  }
+
+
+  # Vector of sites open over entire duration of moving window (i.e. measuring in each month of window)
+  open.sites <- df %>%
+    mutate(date = if(resolution == "month"){
+      format(as.Date(date), "%Y-%m")
+      } else if(resolution == "day"){
+        lubridate::date(date)
+      }) %>%
+    dplyr::select(date, site_code) %>%
+    distinct() %>%
+    group_by(site_code) %>%
+    summarise(n = n()) %>%
+    ungroup() %>%
+    filter(n >= (length(dates.window))*data.capture) %>%
+    dplyr::select(site_code) %>%
+    pull()
+
+  return(open.sites)
 
 }
 
