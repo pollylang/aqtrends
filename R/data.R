@@ -1,0 +1,20 @@
+#' @title Example observation data for the aqtrends package
+#'
+#' @description Monthly mean NOx concentration data measured at 115 London roadside monitoring sites between 2000-01-01 and 2017-12-31.
+#'
+#' @format A data frame with 11718 rows and 8 variables:
+#' \describe{
+#'   \item{site_code}{Unique site code of the monitoring site at which measurement was made}
+#'   \item{site_name}{Name of monitoring site}
+#'   \item{site_type}{Site classification (all are Urban_traffic i.e. roadside sites)}
+#'   \item{latitude}{Latitude of monitoring site}
+#'   \item{longitude}{Longitude of monitoring site}
+#'   \item{date}{Date of measurement - aggregated to monthly resolution}
+#'   \item{variable}{Pollutant measured (NOx for all observations)}
+#'   \item{value}{Monthly mean value of \code{variable} measured in ugm-3}
+#' }
+#'
+#' @source The observations data were sourced from \href{https://uk-air.defra.gov.uk/networks/network-info?view=aurn}{the Automatic Urban and Rural Network},
+#' \href{http://www.londonair.org.uk/LondonAir/Default.aspx}{the London Air Quality Network}, and
+#' \href{http://www.airqualityengland.co.uk/}{Air Quality England}. All data are publicly available under the Open Government Licence (OGL).
+"london_nox_data"
