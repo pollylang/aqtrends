@@ -16,8 +16,6 @@ must be supplied as a list of data frames in the order they are given in the rat
 separate the two pollutants with a forward slash e.g. \code{pollutant = "no2/nox"}.}
 
 \item{stat}{The metric (character string) used to average the ambient concentration data by year. Options: "median", "mean".}
-
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
 }
 \value{
 A list of plots:
@@ -39,7 +37,7 @@ time.
 }
 \examples{
 \dontrun{
-site_flux_bias(obs.nox, pollutant = "nox", stat = "median", smooth.method = "gam")
+site_flux_bias(obs.nox, pollutant = "nox", stat = "median")
 }
 
 }
