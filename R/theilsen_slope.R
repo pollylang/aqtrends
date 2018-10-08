@@ -1,6 +1,6 @@
 #' @title Theil-Sen slope of rolling change trend
 #'
-#' @description Calculates the Theil-Sen slope and p-value for the rolling change trend using the \code{mblm}
+#' @description Calculates the Theil-Sen slope and p-value for the rolling change trend (yearly) using the \code{mblm}
 #' and \code{Kendall} packages.
 #'
 #' @details The two-sided p-value is calculated using Mann-Kendall trend test from
@@ -18,7 +18,10 @@
 
 theilsen_slope <- function(change_trend){
 
-  theilsen <- mblm::mblm(trend_difference~date, change_trend$data)
+  data <- change_trend$data %>%
+    dplyr::mutate(year = lubridate::year(date))
+
+  theilsen <- mblm::mblm(trend_difference~year, data)
 
   theilsen.slope <- theilsen$coefficients[2]
   signif <- Kendall::MannKendall(change_trend$data$trend_difference)$sl

@@ -4,8 +4,8 @@
 \alias{rolling_trends}
 \title{Rolling trend plots}
 \usage{
-rolling_trends(obs, pollutant, avg.ts = "year", window.width = c(2, 3, 5, 7,
-  10, 12, 15), stat = "median", start.date = "2000-01-01",
+rolling_trends(obs, pollutant, avg.ts = "year", window.width = c(2, 3,
+  5, 7, 10, 12, 15), stat = "median", start.date = "2000-01-01",
   end.date = "2017-12-31", data.capture = 90, parallel = TRUE,
   verbose = FALSE)
 }

@@ -5,8 +5,9 @@
 \title{Rolling change trends (extract true trend)}
 \usage{
 rolling_change_trend(obs, pollutant, window.width, avg.ts = "year",
-  stat = "median", start.date = "2000-01-01", end.date = "2017-12-31",
-  data.capture = 90, parallel = FALSE, verbose = FALSE)
+  stat = "median", start.date = "2000-01-01",
+  end.date = "2017-12-31", data.capture = 90, parallel = FALSE,
+  verbose = FALSE)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,

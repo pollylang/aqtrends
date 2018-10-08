@@ -4,8 +4,8 @@
 \alias{average_data}
 \title{Average raw hourly data by year or month-year}
 \usage{
-average_data(df, avg.time = "year", statistic = "mean", sites = FALSE,
-  date.format = FALSE)
+average_data(df, avg.time = "year", statistic = "mean",
+  sites = FALSE, date.format = FALSE)
 }
 \arguments{
 \item{df}{Data frame containing the variables \code{date}, \code{site_code}, \code{value}.}

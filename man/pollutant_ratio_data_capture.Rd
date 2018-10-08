@@ -4,8 +4,8 @@
 \alias{pollutant_ratio_data_capture}
 \title{Calculate average pollutant ratios (with data capture constraint)}
 \usage{
-pollutant_ratio_data_capture(df.list, avg.time, start, end, data.capture, res,
-  statistic = "mean", sites = FALSE)
+pollutant_ratio_data_capture(df.list, avg.time, start, end, data.capture,
+  res, statistic = "mean", sites = FALSE)
 }
 \arguments{
 \item{df.list}{List of data frames of observation data for each pollutant in the ratio. First element of list should be

@@ -13,7 +13,7 @@ theilsen_slope(change_trend)
 Data frame with two columns: the Theil-Sen slope and the two-sided p-value
 }
 \description{
-Calculates the Theil-Sen slope and p-value for the rolling change trend using the \code{mblm}
+Calculates the Theil-Sen slope and p-value for the rolling change trend (yearly) using the \code{mblm}
 and \code{Kendall} packages.
 }
 \details{
