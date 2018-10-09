@@ -19,6 +19,7 @@
 The observations data were sourced from \href{https://uk-air.defra.gov.uk/networks/network-info?view=aurn}{the Automatic Urban and Rural Network},
 \href{http://www.londonair.org.uk/LondonAir/Default.aspx}{the London Air Quality Network}, and
 \href{http://www.airqualityengland.co.uk/}{Air Quality England}. All data are publicly available under the Open Government Licence (OGL).
+© Crown 2018 copyright Defra via uk-air.defra.gov.uk, licenced under the Open Government Licence (OGL).
 }
 \usage{
 london_nox_data
