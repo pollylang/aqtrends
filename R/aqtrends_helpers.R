@@ -431,7 +431,7 @@ trends_plots_helper <- function(df, sites, poll, stat, start.date, end.date){
     geom_point() +
     xlab("Year") +
     ylab(openair::quickText(paste0(stringr::str_to_title(stat), " ", poll, " concentration (ugm-3)"))) +
-    scale_x_continuous(breaks = round(seq(as.numeric(lubridate::year(start.date)), as.numeric(lubridate::year(end.date)), by = 2),1)) +
+    #scale_x_continuous(breaks = round(seq(as.numeric(lubridate::year(start.date)), as.numeric(lubridate::year(end.date)), by = 2),1)) +
     theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
@@ -444,7 +444,10 @@ trends_plots_helper <- function(df, sites, poll, stat, start.date, end.date){
       geom_smooth(aes(color = site_code), se = FALSE, show.legend = FALSE, method = smooth.method, span = 1, size = 0.5)
   } else{
     plot <- plot +
-      geom_smooth(method = smooth.method) +
+      geom_smooth(method = "loess",
+                  color =  viridis::inferno(1, begin=0.3, end=0.8),
+                  fill =  viridis::inferno(1, begin=0.3, end=0.8),
+                  alpha=0.25) +
       geom_text(aes(label = n), vjust = 1.3, size = 3)
   }
 

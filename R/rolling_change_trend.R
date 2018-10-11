@@ -220,7 +220,10 @@ rolling_change_trend <- function(obs,
     p <- df %>%
       ggplot(aes(x = date, y = trend_difference)) +
       geom_point() +
-      geom_smooth(method = smooth.method) +
+      geom_smooth(method = "loess",
+                  color =  viridis::inferno(1, begin=0.3, end=0.8),
+                  fill =  viridis::inferno(1, begin=0.3, end=0.8),
+                  alpha=0.25) +
       xlab("Year") +
       ylab(openair::quickText(paste("Change in ", pollutant, " concentration (ug m-3)"))) +
       geom_text(aes(label = n), vjust = 1.3, size = 3) +

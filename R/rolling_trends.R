@@ -199,7 +199,8 @@ rolling_trends <- function(obs,
     rolling.all <- df %>%
       ggplot(aes(x = date, y = av_value, color=trend)) +
       geom_point() +
-      geom_smooth(method = smooth.method, show.legend = FALSE) +
+      geom_smooth(method = smooth.method, show.legend = FALSE,
+                  color = viridis::inferno(1, begin=0.3, end=0.8)) +
       scale_color_gradient2(midpoint=0, low="darkblue", mid="darkviolet",
                             high="darkred", space ="Lab" ) +
       labs(x = "Year", colour = "Slope", fill = "Slope") +

@@ -120,15 +120,18 @@ site_flux_bias <- function(obs,
 
     plot <- ggplot(difference, aes_string(x = "date", y = y.var)) +
       geom_point() +
-      geom_smooth(method = smooth.method) +
-      geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-      scale_x_continuous(breaks = round(seq(start.yr, end.yr, by = 2),1)) +
+      geom_smooth(method = smooth.method,
+                  color =  viridis::inferno(1, begin=0.3, end=0.8),
+                  fill =  viridis::inferno(1, begin=0.3, end=0.8),
+                  alpha=0.25) +
+      geom_hline(yintercept = 0, linetype = "dashed", color = viridis::inferno(1, begin=0.7, end=0.8)) +
+      #scale_x_continuous(breaks = round(seq(start.yr, end.yr, by = 2),1)) +
       ylab(y.title) + xlab("Year") +
       theme_bw() +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.title = element_text(size = 10),
-            axis.text.x = element_text(size = 10, angle = 90, hjust = 1),
+            axis.text.x = element_text(size = 10),
             axis.text.y = element_text(size = 10),
             panel.border = element_blank(),
             axis.line = element_line())
