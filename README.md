@@ -43,12 +43,12 @@ How to use aqtrends
 Example
 -------
 
-The `aqtrends` functions are demonstrated below by a trend analysis of NO<sub>x</sub> concentrations at 121 roadside monitoring sites in London between 2000-2017. During this period, 9 monitoring sites were constantly open over the duration (long term sites). The data were sourced from [the Automatic Urban and Rural Network](https://uk-air.defra.gov.uk/networks/network-info?view=aurn), [the London Air Quality Network](https://www.londonair.org.uk/LondonAir/Default.aspx) and [Air Quality England](http://www.airqualityengland.co.uk/).
+The `aqtrends` functions are demonstrated below by a trend analysis of monthly NO<sub>x</sub> concentration data at 115 roadside monitoring sites in London between 2000-2017. During this period, 9 monitoring sites were constantly open over the duration (long term sites). The data were sourced from [the Automatic Urban and Rural Network](https://uk-air.defra.gov.uk/networks/network-info?view=aurn), [the London Air Quality Network](https://www.londonair.org.uk/LondonAir/Default.aspx) and [Air Quality England](http://www.airqualityengland.co.uk/).
 
 The differences between the average trend (left) and the long term trend (right) in NO<sub>x</sub>, plotted using the `average_trends` function, suggest a biasing effect may be influencing the average trend.
 
 ``` r
-nox.av.trends <- average_trends(data, pollutant = "nox", stat = "median", 
+nox.av.trends <- average_trends(london_nox_data, pollutant = "nox", stat = "median", 
                                 start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90)
 
 cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, ncol = 2)
@@ -59,7 +59,7 @@ cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, nc
 The presence of a biasing effect can be confirmed by plotting the differences in concentration between opening sites and closing sites as a function of year using the `site_flux_bias` function (see below). In this case, it is clear that opening sites have a consistently higher average NO<sub>x</sub> concentration than closing sites. Taking into account the relative frequency of opening and closing sites (as shown in the plot of the weighted cumulative sum of differences in concentration as a function of time on the far right), a bias towards more polluted locations is evident.
 
 ``` r
-site_flux_bias(data, pollutant = "nox", stat = "median")$all
+site_flux_bias(london_nox_data, pollutant = "nox", stat = "median")$all
 ```
 
 <img src="fig/README-difference-1.png" style="display: block; margin: auto;" />
@@ -69,7 +69,7 @@ site_flux_bias(data, pollutant = "nox", stat = "median")$all
 Further evidence of the effect of the bias on the average trend can be visualised using the `rolling_trends` function, as demonstrated below. The plots on the left shows rolling trends over a short moving window, each offset from its neighbours by a single year. The plot on the right shows the average trend over all data included in the rolling trend plots. The larger the width of the moving window, the more constraining the data capture filters on the data. Comparison of the rolling trends and average trends over different moving window widths (i.e. data capture filters - in this case moving window widths = 2, 5, 7, 10, 12, 15 years) demonstrates that some of the features of the average trend, most notably in this case the increase in concentration between 2008-2013, are artefacts of bias in the monitoring network rather than features of the true trend.
 
 ``` r
-rolling_trends(data, pollutant = "nox", window.width = c(2, 5, 7, 10, 12, 15))
+rolling_trends(london_nox_data, pollutant = "nox", window.width = c(2, 5, 7, 10, 12, 15))
 ## $`moving_window_width=2`
 ```
 
@@ -105,7 +105,7 @@ rolling_trends(data, pollutant = "nox", window.width = c(2, 5, 7, 10, 12, 15))
 Having identified the effect of bias on the average trend, the `rolling_change_trend` function can be used to extract the true trend from the data, as shown below.
 
 ``` r
-rolling_change_trend(data, "nox", window.width = 3, avg.ts = "year", parallel = TRUE)
+rolling_change_trend(london_nox_data, "nox", window.width = 3, avg.ts = "year", parallel = TRUE)
 ```
 
 <img src="fig/README-change_trends-1.png" style="display: block; margin: auto;" />
