@@ -26,25 +26,24 @@
 #'     \code{weighted_cumulative_difference} plots.
 #' }
 #'
-#' @import dplyr ggplot2
+#' @import dplyr
 #'
 #'@examples
 #'\dontrun{
-#'site_flux_bias(obs.nox, pollutant = "nox", stat = "median")
+#'site_flux_bias(london_nox_data, pollutant = "nox", stat = "median")
 #'}
 #'
 #' @export
 
 
 site_flux_bias <- function(obs,
-                              pollutant,
-                              stat = "median"){
+                           pollutant,
+                           stat = "median"){
 
   ## Check arguments
   check_arguments(obs = obs,
                   pollutant = pollutant,
                   stat = stat)
-
 
   ## Create data frame of moving sites as a function of year (i.e. which sites open/close in each year)
 
@@ -55,15 +54,15 @@ site_flux_bias <- function(obs,
   }
 
   start.end <- annual %>%
-    group_by(site_code) %>%
-    summarise(start_year = min(date), end_year = max(date))
+    dplyr::group_by(site_code) %>%
+    dplyr::summarise(start_year = min(date), end_year = max(date))
 
   # Join observations data to moving sites data frame
   moving.sites <- start.end %>%
     tidyr::gather("change", "date", 2:3) %>%
-    mutate(change = ifelse(change == "start_year", "opening", "closing")) %>%
-    filter(!is.na(date)) %>%
-    left_join(annual, by = c("site_code" = "site_code", "date" = "date")) %>%
+    dplyr::mutate(change = ifelse(change == "start_year", "opening", "closing")) %>%
+    dplyr::filter(!is.na(date)) %>%
+    dplyr::left_join(annual, by = c("site_code" = "site_code", "date" = "date")) %>%
     dplyr::select(c(site_code, date, change, av_value))
 
 
@@ -71,30 +70,30 @@ site_flux_bias <- function(obs,
 
   difference.counts <- plyr::count(moving.sites, c("date", "change")) %>%
     tidyr::spread(key = change, value = freq) %>%
-    rename(count.close = closing, count.open = opening)
+    dplyr::rename(count.close = closing, count.open = opening)
 
   if((difference.counts %>%
-    filter(!(is.na(count.close)) & !(is.na(count.open))) %>%
+      dplyr::filter(!(is.na(count.close)) & !(is.na(count.open))) %>%
     nrow()) == 0){
     stop("The input data frame contains no years in which sites both open AND close, therefore the difference between opening and closing sites cannot be calculated.")
   }
 
   difference <- moving.sites %>%
     tidyr::spread(change, av_value) %>%
-    group_by(date) %>%
-    summarise(opening = ifelse(stat == "median", median(opening, na.rm = TRUE), mean(opening, na.rm = TRUE)),
-              closing = ifelse(stat == "median", median(closing, na.rm = TRUE), mean(closing, na.rm = TRUE))) %>%
-    mutate(difference = opening - closing) %>%
-    mutate(difference0 = ifelse(is.na(difference), 0, difference),
-           cumulative_difference = cumsum(difference0),
-           cumulative_difference = ifelse(cumulative_difference == 0, NA, cumulative_difference)) %>%
-    left_join(difference.counts, by = c("date" = "date")) %>%
-    mutate(weighted.opening = opening * count.open,
-           weighted.closing = closing * count.close) %>%
-    mutate(weighted.difference = weighted.opening - weighted.closing) %>%
-    mutate(weighted.difference0 = ifelse(is.na(weighted.difference), 0, weighted.difference),
-           w.cumulative_difference = cumsum(weighted.difference0),
-           w.cumulative_difference = ifelse(w.cumulative_difference == 0, NA, w.cumulative_difference))
+    dplyr::group_by(date) %>%
+    dplyr::summarise(opening = ifelse(stat == "median", median(opening, na.rm = TRUE), mean(opening, na.rm = TRUE)),
+                     closing = ifelse(stat == "median", median(closing, na.rm = TRUE), mean(closing, na.rm = TRUE))) %>%
+    dplyr::mutate(difference = opening - closing) %>%
+    dplyr::mutate(difference0 = ifelse(is.na(difference), 0, difference)) %>%
+    dplyr::mutate(cumulative_difference = cumsum(difference0)) %>%
+    dplyr::mutate(cumulative_difference = ifelse(cumulative_difference == 0, NA, cumulative_difference)) %>%
+    dplyr::left_join(difference.counts, by = c("date" = "date")) %>%
+    dplyr::mutate(weighted.opening = opening * count.open,
+                  weighted.closing = closing * count.close) %>%
+    dplyr::mutate(weighted.difference = weighted.opening - weighted.closing) %>%
+    dplyr::mutate(weighted.difference0 = ifelse(is.na(weighted.difference), 0, weighted.difference)) %>%
+    dplyr::mutate(w.cumulative_difference = cumsum(weighted.difference0)) %>%
+    dplyr::mutate(w.cumulative_difference = ifelse(w.cumulative_difference == 0, NA, w.cumulative_difference))
 
   start.yr <- min(difference$date, na.rm = TRUE)
   end.yr <- max(difference$date, na.rm = TRUE)
@@ -118,23 +117,17 @@ site_flux_bias <- function(obs,
       smooth.method <- "loess"
     }
 
-    plot <- ggplot(difference, aes_string(x = "date", y = y.var)) +
-      geom_point() +
-      geom_smooth(method = smooth.method,
-                  color =  viridis::inferno(1, begin=0.3, end=0.8),
-                  fill =  viridis::inferno(1, begin=0.3, end=0.8),
-                  alpha=0.25) +
-      geom_hline(yintercept = 0, linetype = "dashed", color = viridis::inferno(1, begin=0.7, end=0.8)) +
-      #scale_x_continuous(breaks = round(seq(start.yr, end.yr, by = 2),1)) +
-      ylab(y.title) + xlab("Year") +
-      theme_bw() +
-      theme(panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.title = element_text(size = 10),
-            axis.text.x = element_text(size = 10),
-            axis.text.y = element_text(size = 10),
-            panel.border = element_blank(),
-            axis.line = element_line())
+    plot.colour <- viridis::inferno(1, begin = 0.3, end = 0.8)
+
+    plot <- ggplot2::ggplot(difference, ggplot2::aes_string(x = "date", y = y.var)) +
+      ggplot2::geom_point(color = plot.colour) +
+      ggplot2::geom_smooth(method = smooth.method,
+                           color =  plot.colour,
+                           fill =  plot.colour,
+                           alpha=0.25) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+      ggplot2::labs(y = y.title, x = "Year") +
+      ggplot2::theme_minimal()
 
     return(plot)
 

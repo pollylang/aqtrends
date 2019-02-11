@@ -19,17 +19,11 @@
 #' @param end.date The end date of the period of interest. Data capture to filter long term sites will be
 #' conducted using this date as the ending date.
 #'
-#' @param data.capture The data capture threshold used to define 'long term sites' (as a %). To qualify as a
-#' long term site, the monitoring site must have data capture at least equal to this threshold over the period
-#' defined by the 'start.date' and 'end.date' arguments.
-#'
-#' @param smooth.method The smoothing method to use in the \code{geom_smooth} function when plotting trends.
+#' @param avg.time Resolution to average data to. Options: "year", "month", "day".
 #'
 #' @examples
 #' \dontrun{
-#' average_trends(obs.nox, pollutant = "nox",
-#' start.date = "2000-01-01", end.date = "2017-12-31",
-#' data.capture = 90)
+#' average_trends(london_nox_data, pollutant = "nox", start.date = "2000-01-01", end.date = "2017-12-31")
 #' }
 #'
 #' @import dplyr ggplot2
@@ -52,73 +46,96 @@ average_trends <- function(obs,
                          stat = "median",
                          start.date = "2000-01-01",
                          end.date = "2017-12-31",
-                         data.capture = 90){
+                         avg.time = "year"){
 
   ## Check arguments
   check_arguments(obs = obs,
                   pollutant = pollutant,
                   stat = stat,
                   start.date = start.date,
-                  end.date = end.date,
-                  data.capture = data.capture)
+                  end.date = end.date)
 
 
   ## Data averaging (conditional on whether to calculate for pollutant or pollutant ratio)
 
-  if(!(stringr::str_detect(pollutant, "/"))){
+  start <- lubridate::year(lubridate::ymd(start.date))
+  end <- lubridate::year(lubridate::ymd(end.date))
 
-    allsites.sites <- average_data(obs, avg.time = "year", statistic = stat, sites = TRUE) # annual average for each site
-    allsites.av <- average_data(obs, avg.time = "year", statistic = stat, sites = FALSE) # annual average over all sites
+  worker <- function(id = "all", include.sites = FALSE){
 
-    longterm <- data_capture(obs, threshold = data.capture, start.date = start.date, end.date = end.date)
+    if(!(stringr::str_detect(pollutant, "/"))){
 
-    longterm.sites <- longterm %>% average_data(avg.time = "year", statistic = stat, sites = TRUE) # annual average for each long term sites
-    longterm.av <- longterm %>% average_data(avg.time = "year", statistic = stat, sites = FALSE) # annual average over all long term sites
+      obs <- obs %>%
+        dplyr::filter(date >= lubridate::ymd(start.date), date <= lubridate::ymd(end.date))
 
-  } else{
+      if(id == "longterm"){
+        longterm.sitecodes <- get_longterm_sites(obs, pollutant, start, end, resolution = avg.time)
+        obs <- obs[obs$site_code %in% longterm.sitecodes, ]
+      }
 
-    allsites.sites <- calculate_pollutant_ratio(obs, avg.time = "year", statistic = stat, sites = TRUE)
-    allsites.av <- calculate_pollutant_ratio(obs, avg.time = "year", statistic = stat, sites = FALSE)
+      if(nrow(obs) >= 1){            # if there are long term sites...
+        obs <- average_data(obs, avg.time = avg.time, statistic = stat, sites = include.sites) # annual average for each site
+      } else{                        # if there aren't any long term sites...
+        return(NULL)
+      }
 
-    longterm.sites <- pollutant_ratio_data_capture(obs, avg.time = "year", start.date, end.date, data.capture,
-                                                   statistic = stat, sites = TRUE)
-    longterm.av <- pollutant_ratio_data_capture(obs, avg.time = "year", start.date, end.date, data.capture, statistic = stat,
-                                                sites = FALSE)
+
+    } else{
+
+      # Get long term sites
+      obs <- purrr::map(obs, function(x) dplyr::filter(x, date >= lubridate::ymd(start.date), date <= lubridate::ymd(end.date)))
+
+      if(id == "longterm"){
+        pollutants <- purrr::map_chr(obs, function(x) unique(x$variable))
+        longterm.sitecodes <- purrr::map2(obs, pollutants, get_longterm_sites,
+                                         start = start, end = end,
+                                         resolution = avg.time) %>%
+                                         {Reduce(intersect, .)}
+
+        obs <- purrr::map(obs, function(x) x[x$site_code %in% longterm.sitecodes, ])
+      }
+
+      if(all(sapply(obs, function(x) nrow(x) > 1))){        # if there are long term sites...
+        obs <- calculate_pollutant_ratio(obs, avg.time = avg.time, statistic = stat, sites = include.sites)
+      } else {                                              # if there aren't any long term sites...
+        return(NULL)
+      }
+
+    }
+
+    ## Plots
+    plot <- trends_plots_helper(obs, sites = include.sites, pollutant, stat, start.date, end.date)
+
+    return(plot)
 
   }
 
+  # Create plots for (i) all sites/overall trend, (ii) all sites/individual site trends, (iii) long term sites/overall trend,
+  # (iv) long term sites/individual site trends
+  args <- data.frame("id" = c(rep("all", 2), rep("longterm", 2)),
+                     "include_sites" = rep(c(FALSE, TRUE)))
 
+  plots <- purrr::map2(args$id, args$include_sites, worker) %>% plyr::compact()
 
-  ## Plots
-
-  allsites.av.plot <- trends_plots_helper(allsites.av, sites = FALSE, pollutant, stat, start.date, end.date)
-  allsites.sites.plot <- trends_plots_helper(allsites.sites, sites = TRUE, pollutant, stat, start.date, end.date)
-
-  # If long term sites...
-  if(nrow(longterm.av) > 0){
-
-    longterm.av.plot <- trends_plots_helper(longterm.av, sites = FALSE, pollutant, stat, start.date, end.date)
-    longterm.sites.plot <- trends_plots_helper(longterm.sites, sites = TRUE, pollutant, stat, start.date, end.date)
-
+  if(length(plots) == 4){
     # Compare NOx time series from all monitoring sites and long term sites
-    trends <- cowplot::plot_grid(allsites.av.plot,
-                                 longterm.av.plot,
-                                 labels = c("(a) all sites", "(b) long term sites"))
+    trends <- cowplot::plot_grid(plots[[1]], plots[[3]],
+                                 labels = c("All sites", "Long term sites"))
 
-    out <- list("average.trend" = allsites.av.plot,
-                "longterm.trend" = longterm.av.plot,
+    out <- list("average.trend" = plots[[1]],
+                "longterm.trend" = plots[[3]],
                 "trends.comparison" = trends,
-                "average.allsites" = allsites.sites.plot,
-                "longterm.allsites" = longterm.sites.plot)
+                "average.allsites" = plots[[2]],
+                "longterm.allsites" = plots[[4]])
 
-  } else{ # if no long term sites....
+  } else if(length(plots) == 2){ # if no long term sites....
+
     print(paste0("No long term sites over the period ", start.date, " - ", end.date, ". Returning average trend only."))
 
-    out <- list("average.trend" = allsites.av.plot,
-                "average.allsites" = allsites.sites.plot)
+    out <- list("average.trend" = plots[[1]],
+                "longterm.trend" = plots[[2]])
+
   }
-
-
   return(out)
 }
 

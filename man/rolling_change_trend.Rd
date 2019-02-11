@@ -6,8 +6,7 @@
 \usage{
 rolling_change_trend(obs, pollutant, window.width, avg.ts = "year",
   stat = "median", start.date = "2000-01-01",
-  end.date = "2017-12-31", data.capture = 90, parallel = FALSE,
-  verbose = FALSE)
+  end.date = "2017-12-31", parallel = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
@@ -29,10 +28,6 @@ from each time series (monitoring site). Options are: "year", "month", "week", a
 \item{start.date, end.date}{The starting and ending dates (character string) of the period of interest over which
 to calculate and plot the change trend.}
 
-\item{data.capture}{The data capture threshold used to filter data within each moving window. During calculation of the
-rolling regression, only data from sites with data capture >= \code{data.capture} over the period encapsulated by the
-moving window will be included in the rolling regression.}
-
 \item{parallel}{Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
 number of cores - 1.}
@@ -51,7 +46,7 @@ closing sites with extreme magnitudes.
 }
 \examples{
 \dontrun{
-rolling_change_trend(obs.nox,
+rolling_change_trend(london_nox_data,
 pollutant = "nox",
 window.width = 3,
 avg.ts = "year",

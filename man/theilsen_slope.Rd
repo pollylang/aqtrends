@@ -4,21 +4,17 @@
 \alias{theilsen_slope}
 \title{Theil-Sen slope of rolling change trend}
 \usage{
-theilsen_slope(change_trend)
+theilsen_slope(change.trend, avg.time = "year")
 }
 \arguments{
-\item{change_trend}{A rolling change trend plot output from the \code{rolling_change_trend} function.}
+\item{change.trend}{A rolling change trend plot output from the \code{rolling_change_trend} function.}
+
+\item{avg.time}{Resolution for which to calculate Theil Sen slope (e.g. yearly, monthly, daily average data).}
 }
 \value{
-Data frame with two columns: the Theil-Sen slope and the two-sided p-value
+Theil-Sen estimator plot and data (slope, 95% confidence intervals, significance level).
 }
 \description{
-Calculates the Theil-Sen slope and p-value for the rolling change trend (yearly) using the \code{mblm}
-and \code{Kendall} packages.
-}
-\details{
-The two-sided p-value is calculated using Mann-Kendall trend test from
-the \href{https://cran.r-project.org/web/packages/Kendall/Kendall.pdf}{Kendall} package. This is used in preference
-to the confidence interval calculation provided by the \code{mblm} package, which suffers from inaccuracies
-due to autocorrelation of the time series data.
+Calculates the Theil-Sen slope and 95% confidence intervals for the rolling change trend using the
+\code{openair::TheilSen} function.
 }

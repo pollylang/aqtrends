@@ -37,7 +37,7 @@ time.
 }
 \examples{
 \dontrun{
-site_flux_bias(obs.nox, pollutant = "nox", stat = "median")
+site_flux_bias(london_nox_data, pollutant = "nox", stat = "median")
 }
 
 }

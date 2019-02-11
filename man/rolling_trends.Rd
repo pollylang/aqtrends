@@ -4,10 +4,9 @@
 \alias{rolling_trends}
 \title{Rolling trend plots}
 \usage{
-rolling_trends(obs, pollutant, avg.ts = "year", window.width = c(2, 3,
-  5, 7, 10, 12, 15), stat = "median", start.date = "2000-01-01",
-  end.date = "2017-12-31", data.capture = 90, parallel = TRUE,
-  verbose = FALSE)
+rolling_trends(obs, pollutant, window.width = c(2, 3, 5, 7, 10, 12, 15),
+  avg.ts = "year", stat = "median", start.date = "2000-01-01",
+  end.date = "2017-12-31", parallel = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
@@ -22,14 +21,14 @@ separate the two pollutants with a forward slash e.g. \code{pollutant = "no2/nox
 can be a vector (to compare rolling and average trends over a range of window widths) or a numeric (to return the rolling
 trend for a single window width).}
 
+\item{avg.ts}{The resolution to which to average each time series, upon which the rolling regression is carried out.
+For example, setting \code{avg.ts = "day"} means the rolling regression will be carried out on the daily average concentrations
+from each time series (monitoring site). Options are: "year", "month", "week", and "day".}
+
 \item{stat}{The metric (character string) used to average the ambient concentration data by year. Options: "median", "mean".}
 
 \item{start.date, end.date}{The starting and ending dates (character string) of the period of interest over which
 to calculate and plot the change trend.}
-
-\item{data.capture}{The data capture threshold used to filter data within each moving window. During calculation of the
-rolling regression, only data from sites with data capture >= \code{data.capture} over the period encapsulated by the
-moving window will be included in the rolling regression.}
 
 \item{parallel}{Logical indicating whether the rolling changes should be computed in parallel. If \code{TRUE}, the
 parallelisation will be implemented using the \code{foreach} function. The number of cores used will be the total
@@ -46,10 +45,9 @@ closing of monitoring sites with different magnitudes over the period examined u
 }
 \examples{
 \dontrun{
-rolling_trends(obs.nox, pollutant = "nox",
+rolling_trends(london_nox_data, pollutant = "nox",
 window.width = c(2, 5, 7, 10), stat = "median",
 start.date = "2000-01-01", end.date = "2017-12-31",
-data.capture = 90,
 parallel = FALSE)
 }
 

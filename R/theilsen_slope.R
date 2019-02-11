@@ -1,32 +1,42 @@
 #' @title Theil-Sen slope of rolling change trend
 #'
-#' @description Calculates the Theil-Sen slope and p-value for the rolling change trend (yearly) using the \code{mblm}
-#' and \code{Kendall} packages.
+#' @description Calculates the Theil-Sen slope and 95% confidence intervals for the rolling change trend using the
+#' \code{openair::TheilSen} function.
 #'
-#' @details The two-sided p-value is calculated using Mann-Kendall trend test from
-#' the \href{https://cran.r-project.org/web/packages/Kendall/Kendall.pdf}{Kendall} package. This is used in preference
-#' to the confidence interval calculation provided by the \code{mblm} package, which suffers from inaccuracies
-#' due to autocorrelation of the time series data.
+#' @param change.trend A rolling change trend plot output from the \code{rolling_change_trend} function.
 #'
-#' @param change_trend A rolling change trend plot output from the \code{rolling_change_trend} function.
+#' @param avg.time Resolution for which to calculate Theil Sen slope (e.g. yearly, monthly, daily average data).
 #'
-#' @return Data frame with two columns: the Theil-Sen slope and the two-sided p-value
+#' @return Theil-Sen estimator plot and data (slope, 95% confidence intervals, significance level).
 #'
 #' @export
 
 
 
-theilsen_slope <- function(change_trend){
+theilsen_slope <- function(change.trend, avg.time = "year"){
 
-  data <- change_trend$data %>%
-    dplyr::mutate(year = lubridate::year(date))
+  data <- change.trend$data #%>%
+    #dplyr::mutate(date = if(avg.time == "year"){
+    #  lubridate::year(date)
+    #} else if(avg.time == "month"){
+    #  format(lubridate::date(date), "%Y-%m")
+    #} else if(avg.time == "day"){
+    #  lubridate::date(date)
+    #})
 
-  theilsen <- mblm::mblm(trend_difference~year, data)
+  #theilsen <- mblm::mblm(trend_difference~date, data)
 
-  theilsen.slope <- theilsen$coefficients[2]
-  signif <- Kendall::MannKendall(change_trend$data$trend_difference)$sl
+  #theilsen.slope <- theilsen$coefficients[2]
+  #signif <- Kendall::MannKendall(change_trend$data$trend_difference)$sl
 
-  out <- data.frame("slope" = theilsen.slope, "p-value" = signif[1])
+  theilsen <- openair::TheilSen(data, pollutant = "trend_difference", avg.time = avg.time, plot = FALSE)
+
+  theilsen.data <- theilsen$data$res2 %>%
+    dplyr::select(slope, lower, upper, slope.percent, lower.percent, upper.percent, p.stars) %>%
+    dplyr::filter(!(is.nan(slope)))
+
+  #out <- data.frame("slope" = theilsen.slope, "p-value" = signif[1])
+  out <- list("plot" = theilsen$plot, "data" = theilsen.data)
 
   return(out)
 

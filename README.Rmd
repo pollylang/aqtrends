@@ -67,7 +67,7 @@ The differences between the average trend (left) and the long term trend (right)
 
 ```{r av_trends, fig.width=10}
 nox.av.trends <- average_trends(london_nox_data, pollutant = "nox", stat = "median", 
-                                start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90)
+                                start.date = "2000-01-01", end.date = "2017-12-31")
 
 cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, ncol = 2)
 ```
@@ -94,5 +94,5 @@ Having identified the effect of bias on the average trend, the `rolling_change_t
 
 
 ```{r change_trends}
-rolling_change_trend(london_nox_data, "nox", window.width = 3, avg.ts = "year", parallel = TRUE)
+rolling_change_trend(london_nox_data, "nox", window.width = 3, avg.ts = "year")
 ```

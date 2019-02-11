@@ -6,7 +6,7 @@
 \usage{
 average_trends(obs, pollutant, stat = "median",
   start.date = "2000-01-01", end.date = "2017-12-31",
-  data.capture = 90)
+  avg.time = "year")
 }
 \arguments{
 \item{obs}{A data frame of ambient pollutant concentration data. Must contain the columns: site_code, date,
@@ -25,11 +25,7 @@ conducted using this date as the starting date.}
 \item{end.date}{The end date of the period of interest. Data capture to filter long term sites will be
 conducted using this date as the ending date.}
 
-\item{data.capture}{The data capture threshold used to define 'long term sites' (as a %). To qualify as a
-long term site, the monitoring site must have data capture at least equal to this threshold over the period
-defined by the 'start.date' and 'end.date' arguments.}
-
-\item{smooth.method}{The smoothing method to use in the \code{geom_smooth} function when plotting trends.}
+\item{avg.time}{Resolution to average data to. Options: "year", "month", "day".}
 }
 \value{
 A list of plots:
@@ -49,9 +45,7 @@ over the long term sites only (i.e. sites open constantly over the period of int
 }
 \examples{
 \dontrun{
-average_trends(obs.nox, pollutant = "nox",
-start.date = "2000-01-01", end.date = "2017-12-31",
-data.capture = 90)
+average_trends(london_nox_data, pollutant = "nox", start.date = "2000-01-01", end.date = "2017-12-31")
 }
 
 }
