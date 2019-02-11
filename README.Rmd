@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   fig.align = "center",
-  fig.path = "fig/README-"
+  fig.path = "./fig/README-"
 )
 ```
 

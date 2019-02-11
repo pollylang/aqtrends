@@ -49,12 +49,12 @@ The differences between the average trend (left) and the long term trend (right)
 
 ``` r
 nox.av.trends <- average_trends(london_nox_data, pollutant = "nox", stat = "median", 
-                                start.date = "2000-01-01", end.date = "2017-12-31", data.capture = 90)
+                                start.date = "2000-01-01", end.date = "2017-12-31")
 
 cowplot::plot_grid(nox.av.trends$average.trend, nox.av.trends$longterm.trend, ncol = 2)
 ```
 
-<img src="fig/README-av_trends-1.png" style="display: block; margin: auto;" />
+<img src="./fig/README-av_trends-1.png" style="display: block; margin: auto;" />
 
 The presence of a biasing effect can be confirmed by plotting the differences in concentration between opening sites and closing sites as a function of year using the `site_flux_bias` function (see below). In this case, it is clear that opening sites have a consistently higher average NO<sub>x</sub> concentration than closing sites. Taking into account the relative frequency of opening and closing sites (as shown in the plot of the weighted cumulative sum of differences in concentration as a function of time on the far right), a bias towards more polluted locations is evident.
 
@@ -62,7 +62,7 @@ The presence of a biasing effect can be confirmed by plotting the differences in
 site_flux_bias(london_nox_data, pollutant = "nox", stat = "median")$all
 ```
 
-<img src="fig/README-difference-1.png" style="display: block; margin: auto;" />
+<img src="./fig/README-difference-1.png" style="display: block; margin: auto;" />
 
  
 
@@ -73,39 +73,39 @@ rolling_trends(london_nox_data, pollutant = "nox", window.width = c(2, 5, 7, 10,
 ## $`moving_window_width=2`
 ```
 
-<img src="fig/README-rolling-1.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-1.png" style="display: block; margin: auto;" />
 
     ## 
     ## $`moving_window_width=5`
 
-<img src="fig/README-rolling-2.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-2.png" style="display: block; margin: auto;" />
 
     ## 
     ## $`moving_window_width=7`
 
-<img src="fig/README-rolling-3.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-3.png" style="display: block; margin: auto;" />
 
     ## 
     ## $`moving_window_width=10`
 
-<img src="fig/README-rolling-4.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-4.png" style="display: block; margin: auto;" />
 
     ## 
     ## $`moving_window_width=12`
 
-<img src="fig/README-rolling-5.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-5.png" style="display: block; margin: auto;" />
 
     ## 
     ## $`moving_window_width=15`
 
-<img src="fig/README-rolling-6.png" style="display: block; margin: auto;" />
+<img src="./fig/README-rolling-6.png" style="display: block; margin: auto;" />
 
  
 
 Having identified the effect of bias on the average trend, the `rolling_change_trend` function can be used to extract the true trend from the data, as shown below.
 
 ``` r
-rolling_change_trend(london_nox_data, "nox", window.width = 3, avg.ts = "year", parallel = TRUE)
+rolling_change_trend(london_nox_data, "nox", window.width = 3, avg.ts = "year")
 ```
 
-<img src="fig/README-change_trends-1.png" style="display: block; margin: auto;" />
+<img src="./fig/README-change_trends-1.png" style="display: block; margin: auto;" />
