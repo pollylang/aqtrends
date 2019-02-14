@@ -358,7 +358,7 @@ sites_open_throughout_window <- function(df, resolution = "month", data.capture 
 
 
 #' Return the site codes of the 'long term sites' (recorded measurements during every year of the period specified in the
-#' function call)
+#' function call with >= \code{data.capture} % data capture).
 #'
 #' @param df Data frame of observation data from which to get long term sites
 #'
@@ -371,10 +371,14 @@ sites_open_throughout_window <- function(df, resolution = "month", data.capture 
 #' and \code{end}. For a resolution of 'month', the site must have data measured during **each month** between \code{start}
 #' and \code{end}.
 #'
+#' @param data.capture Data capture threshold to apply to 'long term sites' data. To qualify as a long term site,
+#' the site must (in addition to having measurements in every year/month/day of the period) have >= \code{data.capture}
+#' % data capture over the period of analysis (\code{start} - \code{end}). Default is 90% data capture.
+#'
 #' @return Vector of site codes of sites meeting the 'long term' criterion (measurements during every year/month/day of the
-#' period of interest).
+#' period of interest, and sufficient data capture over period of interest).
 
-get_longterm_sites <- function(df, pollutant, start, end, resolution = "year"){
+get_longterm_sites <- function(df, pollutant, start, end, resolution = "year", data.capture = 90){
 
   start.date <- paste0(start, "-01-01")
   end.date <- paste0(end, "-12-31")
@@ -385,6 +389,8 @@ get_longterm_sites <- function(df, pollutant, start, end, resolution = "year"){
     dates <- seq.Date(as.Date(start.date), as.Date(end.date), by = "1 month") %>% format("%Y-%m")
   } else if(resolution == "day"){
     dates <- seq.Date(as.Date(start.date), as.Date(end.date), by = "1 day")
+  } else if(resolution == "hour"){
+    dates <- seq.POSIXt(lubridate::ymd(start.date, tz = "GMT"), lubridate::ymd(end.date, tz = "GMT"), by = "1 hour")
   } else{
     stop("The input time resolution is not supported. Supported resolutions are: 'day', 'month', 'year'.")
   }
@@ -411,6 +417,12 @@ get_longterm_sites <- function(df, pollutant, start, end, resolution = "year"){
     dplyr::select(site_code) %>%
     dplyr::pull() %>%
     unique()
+
+  longterm.data <- df %>%
+    filter(site_code %in% longterm.sites) %>%
+    data_capture(threshold = data.capture, start.date = start.date, end.date = end.date)
+
+  longterm.sites <- longterm.sites %>% .[. %in% unique(longterm.data$site_code)]
 
   return(longterm.sites)
 
@@ -613,3 +625,155 @@ rolling_worker <- function(d1, obs, pollutant, window.width, stat, avg.ts, verbo
   return(longterm.dat)
 
 }
+
+
+
+#' Filter observations data to only include sites with sufficient data capture
+#'
+#' @param data A data frame of observation data with the columns: site_code, date, value (i.e. the same as
+#' the column names in the observations table of the air_quality_data database).
+#'
+#' @param threshold A value between 0-100 specifying the data capture threshold by which to filter the data
+#'
+#' @param start.date,end.date A string in the format "YYYY-MM-DD" specifying the starting date and the ending date between
+#' which to measure data capture.
+#'
+#' @return Data frame of observation data filtered by data capture over the defined period
+#'
+#' @import dplyr
+
+
+data_capture <- function(data, threshold, start.date = NULL, end.date = NULL) {
+
+  # Colnames case
+  colnames(data) <- tolower(colnames(data))
+
+  # Check function arguments
+  args <- c("site_code", "date", "value")
+
+  if(!(all(args %in% colnames(data)))){
+    stop("The input data frame must have the columns 'site code', 'date', 'value'.")
+  }
+
+  if(!is.numeric(threshold)){
+    stop("The 'threshold' argument must be numeric.")
+  }
+  if(!(threshold >= 0 & threshold <= 100)) {
+    stop("The 'threshold' argument must be between 0 and 100.")
+  }
+
+  # Check start.date and end.date
+  if(!(is.null(start.date))){
+    if(!is.character(start.date)){
+      stop("start.date (if specified) must be a character string.")
+    }
+  }
+
+  if(!(is.null(end.date))){
+    if(!is.character(end.date)){
+      stop("end.date (if specified) must be a character string.")
+    }
+  }
+
+  # Convert start.date and end.date arguments to datetime format
+  if(!(is.null(start.date))) start.date <- paste0(start.date, "00:00:00") %>% lubridate::ymd_hms()
+  if(!(is.null(end.date))) end.date <- paste0(end.date, "00:00:00") %>% lubridate::ymd_hms()
+
+
+  # Define find.time.interval functions from openair
+  find.time.interval <- function(dates) {
+
+    ## could have several sites, dates may be unordered
+    ## find the most common time gap in all the data
+    dates <- unique(dates) ## make sure they are unique
+
+    # work out the most common time gap of unique, ordered dates
+    id <- which.max(table(diff(as.numeric(unique(dates[order(dates)])))))
+    seconds <- as.numeric(names(id))
+
+    if ("POSIXt" %in% class(dates)) seconds <- paste(seconds, "sec")
+
+    if (class(dates)[1] == "Date") {
+      seconds <- seconds * 3600 * 24
+      seconds <- paste(seconds, "sec")
+    }
+
+    seconds
+  }
+
+  # Convert data capture to a number between 0 and 1
+  threshold <- threshold / 100
+
+  # Split data by site code
+  dat <- split(data, data$site_code)
+
+  fun <- function(data){
+    # if one line, just return
+    if (nrow(data) < 2) return(data)
+
+    ## time zone of data
+    TZ <- attr(data$date, "tzone")
+    if (is.null(TZ)) TZ <- "GMT" ## as it is on Windows for BST
+    if(TZ == "") TZ <- "GMT"
+
+    ## function to fill missing data gaps
+    ## assume no missing data to begin with
+
+    ## If start.date and end.date ARE NOT defined in function call, set them as the max and min dates
+    ## of the date range in the data set (if they are defined, leave unchanged and pad data between the
+    ## specified dates).
+
+    ## pad out missing data
+
+    if(is.null(start.date)) start.date <- min(data$date, na.rm = TRUE)
+    if(is.null(end.date)) end.date <- max(data$date, na.rm = TRUE)
+
+
+    ## interval in seconds
+    interval <- find.time.interval(data$date)
+
+    ## equivalent number of days, used to refine interval for month/year
+    days <- as.numeric(strsplit(interval, split = " ")[[1]][1]) /
+      24 / 3600
+
+    ## find time interval of data
+    if (class(data$date)[1] == "Date") {
+      interval <- paste(days, "day")
+    } else {
+      ## this will be in seconds
+      interval <- find.time.interval(data$date)
+    }
+
+    ## better interval, most common interval in a year
+    if (days == 31) interval <- "month"
+    if (days %in% c(365, 366)) interval <- "year"
+
+    ## only pad if there are missing data
+    if (length(unique(diff(data$date))) != 1L) {
+      all.dates <- data.frame(date = seq(start.date, end.date, by = interval))
+      data <- data %>% dplyr::full_join(all.dates, by = "date")
+
+    }
+
+    # add missing site codes
+    data$site_code <- rep(unique(data$site_code[!is.na(data$site_code)]), times = nrow(data))
+
+    # if the data capture for this site code is < the specified data capture, delete it
+    if((sum(is.na(data$value))/length(data$value)) <= 1 - threshold) {data.out <- data
+    } else data.out <- data.frame()
+
+    return(data.out)
+
+  }
+
+  # Apply function to all data frames of different site codes and recombine
+  data.out <- list()
+  data.out <- purrr::map(dat, fun)
+  data <- dplyr::bind_rows(data.out)
+
+  # Remove NA values from 'values' column
+  if(nrow(data) > 0) data <- data[!is.na(data$value), ]
+
+  return(data)
+}
+

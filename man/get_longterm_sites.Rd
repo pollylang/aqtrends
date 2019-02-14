@@ -3,9 +3,10 @@
 \name{get_longterm_sites}
 \alias{get_longterm_sites}
 \title{Return the site codes of the 'long term sites' (recorded measurements during every year of the period specified in the
-function call)}
+function call with >= \code{data.capture} % data capture).}
 \usage{
-get_longterm_sites(df, pollutant, start, end, resolution = "year")
+get_longterm_sites(df, pollutant, start, end, resolution = "year",
+  data.capture = 90)
 }
 \arguments{
 \item{df}{Data frame of observation data from which to get long term sites}
@@ -18,12 +19,16 @@ get_longterm_sites(df, pollutant, start, end, resolution = "year")
 as 'long term', a monitoring site must have measurements of the pollutant of interest in every year between \code{start}
 and \code{end}. For a resolution of 'month', the site must have data measured during **each month** between \code{start}
 and \code{end}.}
+
+\item{data.capture}{Data capture threshold to apply to 'long term sites' data. To qualify as a long term site,
+the site must (in addition to having measurements in every year/month/day of the period) have >= \code{data.capture}
+% data capture over the period of analysis (\code{start} - \code{end}). Default is 90% data capture.}
 }
 \value{
 Vector of site codes of sites meeting the 'long term' criterion (measurements during every year/month/day of the
-period of interest).
+period of interest, and sufficient data capture over period of interest).
 }
 \description{
 Return the site codes of the 'long term sites' (recorded measurements during every year of the period specified in the
-function call)
+function call with >= \code{data.capture} % data capture).
 }

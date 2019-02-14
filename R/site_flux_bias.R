@@ -104,11 +104,11 @@ site_flux_bias <- function(obs,
   plots <- function(y.var){
 
     if(y.var == "difference"){
-      y.title <- openair::quickText(paste0("Difference in ", pollutant, " concentration (ugm-3)"))
+      y.title <- openair::quickText(paste0("Difference in concentration\n(ugm-3)"))
     } else if(y.var == "cumulative_difference"){
-      y.title <- openair::quickText(paste0("Cumulative difference in ", pollutant, " concentration (ugm-3)"))
+      y.title <- openair::quickText(paste0("Cumulative sum of\ndifferences in concentration"))
     } else{
-      y.title <- openair::quickText(paste0("Cumulative weighted difference in ", pollutant, " concentration (ugm-3)"))
+      y.title <- openair::quickText(paste0("Cumulative weighted\ndifference in concentration"))
     }
 
     if(nrow(difference) <= 5){
