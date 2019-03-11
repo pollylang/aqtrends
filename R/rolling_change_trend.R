@@ -165,6 +165,13 @@ rolling_change_trend <- function(obs,
     # Calculate concentration change for each year (moving window)
     rolling.out <- trend_difference(rolling.df)
 
+    # Correct the 'date' variable to always be in the form YYYY-01-01 (where YYYY is the middle year of the moving window)
+    rolling.out <- rolling.out %>%
+      mutate(year = case_when(lubridate::month(date) == 1 ~ lubridate::year(date),
+                              lubridate::month(date) == 12 ~ lubridate::year(date)+1,
+                              TRUE ~ lubridate::year(date))) %>%
+      mutate(date = lubridate::ymd(paste0(year, "-01-01")))
+
     # Plot rolling change trend
     plots <- period_plot(rolling.out)
 
